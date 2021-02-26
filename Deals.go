@@ -17,7 +17,25 @@ type DealsResponse struct {
 // Deal stores Deal from Service
 //
 type Deal struct {
-	ID string `json:"id"`
+	ID         string         `json:"id"`
+	Properties DealProperties `json:"properties"`
+	CreatedAt  string         `json:"createdAt"`
+	UpdatedAt  string         `json:"updatedAt"`
+	Archived   bool           `json:"archived"`
+}
+
+type DealProperties struct {
+	Amount              *int     `json:"amount"`
+	Assist              *int     `json:"assist"`
+	Category            *string  `json:"category"`
+	CloseDate           *string  `json:"closedate"`
+	CreateDate          *string  `json:"createdate"`
+	DealName            *string  `json:"dealname"`
+	DealStage           *string  `json:"dealstage"`
+	ForecastAmount      *float64 `json:"hs_forecast_amount"`
+	ForecastProbability *float64 `json:"hs_forecast_probability"`
+	LastUpdated         *string  `json:"notes_last_updated"`
+	OwnerID             *string  `json:"hubspot_owner_id"`
 }
 
 type DealProperty string
@@ -168,21 +186,25 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 
 	if config != nil {
 		if config.Limit != nil {
-			values.Set("limit", string(*config.Limit))
+			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
 		if config.Properties != nil {
-			_properties := []string{}
-			for _, p := range *config.Properties {
-				_properties = append(_properties, string(p))
+			if len(*config.Properties) > 0 {
+				_properties := []string{}
+				for _, p := range *config.Properties {
+					_properties = append(_properties, string(p))
+				}
+				values.Set("properties", strings.Join(_properties, ","))
 			}
-			values.Set("properties", strings.Join(_properties, ","))
 		}
 		if config.Associations != nil {
-			_associations := []string{}
-			for _, a := range *config.Associations {
-				_associations = append(_associations, string(a))
+			if len(*config.Associations) > 0 {
+				_associations := []string{}
+				for _, a := range *config.Associations {
+					_associations = append(_associations, string(a))
+				}
+				values.Set("associations", strings.Join(_associations, ","))
 			}
-			values.Set("associations", strings.Join(_associations, ","))
 		}
 		if config.Archived != nil {
 			values.Set("archived", fmt.Sprintf("%v", *config.Archived))
@@ -207,6 +229,7 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 			URL:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &dealsResponse,
 		}
+		fmt.Println(service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())))
 
 		_, _, e := service.get(&requestConfig)
 		if e != nil {
@@ -226,6 +249,8 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 		if dealsResponse.Paging.Next.After == "" {
 			break
 		}
+
+		after = dealsResponse.Paging.Next.After
 	}
 
 	return &deals, nil

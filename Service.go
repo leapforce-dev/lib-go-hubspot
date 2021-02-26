@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	APIURL string = "https://api.hubapi.com/crm/v3"
-	//DateFormat       string = "2006-01-02T15:04:05"
+	APIURL       string = "https://api.hubapi.com/crm/v3"
+	DateFormat   string = "2006-01-02T15:04:05Z"
+	DateFormatMS string = "2006-01-02T15:04:05.999Z"
 )
 
 // type
@@ -44,9 +45,10 @@ func (service *Service) httpRequest(httpMethod string, requestConfig *go_http.Re
 	if err != nil {
 		return nil, nil, errortools.ErrorMessage(err)
 	}
-	_url.Query().Set("hapikey", service.apiKey)
+	query := _url.Query()
+	query.Set("hapikey", service.apiKey)
 
-	(*requestConfig).URL = _url.String()
+	(*requestConfig).URL = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
 
 	// add error model
 	errorResponse := ErrorResponse{}
