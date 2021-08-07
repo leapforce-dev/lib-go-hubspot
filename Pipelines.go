@@ -6,6 +6,8 @@ import (
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
+	go_types "github.com/leapforce-libraries/go_types"
 )
 
 type PipelinesResponse struct {
@@ -15,26 +17,26 @@ type PipelinesResponse struct {
 // Pipeline stores Pipeline from Service
 //
 type Pipeline struct {
-	Label        string          `json:"label"`
-	DisplayOrder int             `json:"displayOrder"`
-	ID           string          `json:"id"`
-	Stages       []PipelineStage `json:"stages"`
-	CreatedAt    string          `json:"createdAt"`
-	UpdatedAt    string          `json:"updatedAt"`
-	Archived     bool            `json:"archived"`
+	Label        string                   `json:"label"`
+	DisplayOrder int64                    `json:"displayOrder"`
+	ID           go_types.Int64String     `json:"id"`
+	Stages       []PipelineStage          `json:"stages"`
+	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeString   `json:"updatedAt"`
+	Archived     bool                     `json:"archived"`
 }
 
 type PipelineStage struct {
 	Label        string `json:"label"`
 	DisplayOrder int    `json:"displayOrder"`
 	MetaData     struct {
-		IsClosed    *string `json:"isClosed"`
-		Probability *string `json:"probability"`
+		IsClosed    *go_types.BoolString    `json:"isClosed"`
+		Probability *go_types.Float64String `json:"probability"`
 	} `json:"metadata"`
-	ID        string `json:"id"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
-	Archived  bool   `json:"archived"`
+	ID        go_types.Int64String     `json:"id"`
+	CreatedAt h_types.DateTimeMSString `json:"createdAt"`
+	UpdatedAt h_types.DateTimeMSString `json:"updatedAt"`
+	Archived  bool                     `json:"archived"`
 }
 
 type PipelineObjectType string

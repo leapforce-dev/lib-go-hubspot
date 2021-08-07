@@ -7,6 +7,8 @@ import (
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
+	go_types "github.com/leapforce-libraries/go_types"
 )
 
 type ContactsResponse struct {
@@ -17,24 +19,24 @@ type ContactsResponse struct {
 // Contact stores Contact from Service
 //
 type Contact struct {
-	ID           string            `json:"id"`
-	Properties   ContactProperties `json:"properties"`
-	CreatedAt    string            `json:"createdAt"`
-	UpdatedAt    string            `json:"updatedAt"`
-	Archived     bool              `json:"archived"`
-	Associations *Associations     `json:"associations"`
+	ID           string                   `json:"id"`
+	Properties   ContactProperties        `json:"properties"`
+	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeMSString `json:"updatedAt"`
+	Archived     bool                     `json:"archived"`
+	Associations *Associations            `json:"associations"`
 }
 
 type ContactProperties struct {
-	FirstName        *string `json:"firstname"`
-	LastName         *string `json:"lastname"`
-	JobTitle         *string `json:"jobtitle"`
-	Email            *string `json:"email"`
-	MobilePhone      *string `json:"mobilephone"`
-	Phone            *string `json:"phone"`
-	AveragePageviews *string `json:"hs_analytics_average_page_views"`
-	OriginalSource   *string `json:"hs_analytics_source"`
-	OwnerID          *string `json:"hubspot_owner_id"`
+	FirstName        *string               `json:"firstname"`
+	LastName         *string               `json:"lastname"`
+	JobTitle         *string               `json:"jobtitle"`
+	Email            *string               `json:"email"`
+	MobilePhone      *string               `json:"mobilephone"`
+	Phone            *string               `json:"phone"`
+	AveragePageviews *go_types.Int64String `json:"hs_analytics_average_page_views"`
+	OriginalSource   *string               `json:"hs_analytics_source"`
+	OwnerID          *go_types.Int64String `json:"hubspot_owner_id"`
 }
 
 type ContactProperty string

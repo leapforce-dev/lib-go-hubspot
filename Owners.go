@@ -6,6 +6,8 @@ import (
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
+	go_types "github.com/leapforce-libraries/go_types"
 )
 
 type OwnersResponse struct {
@@ -16,19 +18,19 @@ type OwnersResponse struct {
 // Owner stores Owner from Service
 //
 type Owner struct {
-	FirstName string      `json:"firstName"`
-	LastName  string      `json:"lastName"`
-	CreatedAt string      `json:"createdAt"`
-	Archived  bool        `json:"archived"`
-	Teams     []OwnerTeam `json:"teams"`
-	ID        string      `json:"id"`
-	Email     string      `json:"email"`
-	UpdatedAt string      `json:"updatedAt"`
+	FirstName string                   `json:"firstName"`
+	LastName  string                   `json:"lastName"`
+	CreatedAt h_types.DateTimeMSString `json:"createdAt"`
+	Archived  bool                     `json:"archived"`
+	Teams     []OwnerTeam              `json:"teams"`
+	ID        go_types.Int64String     `json:"id"`
+	Email     string                   `json:"email"`
+	UpdatedAt h_types.DateTimeMSString `json:"updatedAt"`
 }
 
 type OwnerTeam struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   go_types.Int64String `json:"id"`
+	Name string               `json:"name"`
 }
 
 type GetOwnersConfig struct {

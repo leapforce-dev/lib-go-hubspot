@@ -7,6 +7,8 @@ import (
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
+	go_types "github.com/leapforce-libraries/go_types"
 )
 
 type CompaniesResponse struct {
@@ -17,40 +19,40 @@ type CompaniesResponse struct {
 // Company stores Company from Service
 //
 type Company struct {
-	ID           string            `json:"id"`
-	Properties   CompanyProperties `json:"properties"`
-	CreatedAt    string            `json:"createdAt"`
-	UpdatedAt    string            `json:"updatedAt"`
-	Archived     bool              `json:"archived"`
-	Associations *Associations     `json:"associations"`
+	ID           string                   `json:"id"`
+	Properties   CompanyProperties        `json:"properties"`
+	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeMSString `json:"updatedAt"`
+	Archived     bool                     `json:"archived"`
+	Associations *Associations            `json:"associations"`
 }
 
 type CompanyProperties struct {
-	Name                    *string `json:"name"`
-	Phone                   *string `json:"phone"`
-	Email                   *string `json:"email"`
-	DomainName              *string `json:"domain"`
-	LifecycleStage          *string `json:"lifecyclestage"`
-	Industry                *string `json:"industry"`
-	AnnualRevenue           *string `json:"annualrevenue"`
-	YearFounded             *string `json:"founded_year"`
-	AboutUs                 *string `json:"about_us"`
-	Street                  *string `json:"address"`
-	Street2                 *string `json:"address2"`
-	City                    *string `json:"city"`
-	State                   *string `json:"state"`
-	ZIP                     *string `json:"zip"`
-	Country                 *string `json:"country"`
-	NumberOfPageViews       *string `json:"hs_analytics_num_page_views"`
-	LastContacted           *string `json:"notes_last_contacted"`
-	NumberOfTimeContacted   *string `json:"num_contacted_notes"`
-	OriginalSourceType      *string `json:"hs_analytics_source"`
-	NextActivityDate        *string `json:"notes_next_activity_date"`
-	LinkedinCompanyPage     *string `json:"linkedin_company_page"`
-	FacebookCompanyPage     *string `json:"facebook_company_page"`
-	NumberOfFormSubmissions *string `json:"num_conversion_events"`
-	WebsiteURL              *string `json:"website"`
-	OwnerID                 *string `json:"hubspot_owner_id"`
+	Name                    *string                   `json:"name"`
+	Phone                   *string                   `json:"phone"`
+	Email                   *string                   `json:"email"`
+	DomainName              *string                   `json:"domain"`
+	LifecycleStage          *string                   `json:"lifecyclestage"`
+	Industry                *string                   `json:"industry"`
+	AnnualRevenue           *go_types.Int64String     `json:"annualrevenue"`
+	Founded                 *string                   `json:"founded_year"`
+	AboutUs                 *string                   `json:"about_us"`
+	Street                  *string                   `json:"address"`
+	Street2                 *string                   `json:"address2"`
+	City                    *string                   `json:"city"`
+	State                   *string                   `json:"state"`
+	ZIP                     *string                   `json:"zip"`
+	Country                 *string                   `json:"country"`
+	NumberOfPageViews       *go_types.Int64String     `json:"hs_analytics_num_page_views"`
+	LastContacted           *h_types.DateTimeMSString `json:"notes_last_contacted"`
+	NumberOfTimesContacted  *go_types.Int64String     `json:"num_contacted_notes"`
+	OriginalSourceType      *string                   `json:"hs_analytics_source"`
+	NextActivityDate        *h_types.DateTimeString   `json:"notes_next_activity_date"`
+	LinkedinCompanyPage     *string                   `json:"linkedin_company_page"`
+	FacebookCompanyPage     *string                   `json:"facebook_company_page"`
+	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events"`
+	WebsiteURL              *string                   `json:"website"`
+	OwnerID                 *go_types.Int64String     `json:"hubspot_owner_id"`
 }
 
 type CompanyProperty string

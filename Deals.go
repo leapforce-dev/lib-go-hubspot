@@ -7,6 +7,8 @@ import (
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
+	go_types "github.com/leapforce-libraries/go_types"
 )
 
 type DealsResponse struct {
@@ -17,26 +19,26 @@ type DealsResponse struct {
 // Deal stores Deal from Service
 //
 type Deal struct {
-	ID           string         `json:"id"`
-	Properties   DealProperties `json:"properties"`
-	CreatedAt    string         `json:"createdAt"`
-	UpdatedAt    string         `json:"updatedAt"`
-	Archived     bool           `json:"archived"`
-	Associations *Associations  `json:"associations"`
+	ID           string                 `json:"id"`
+	Properties   DealProperties         `json:"properties"`
+	CreatedAt    h_types.DateTimeString `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeString `json:"updatedAt"`
+	Archived     bool                   `json:"archived"`
+	Associations *Associations          `json:"associations"`
 }
 
 type DealProperties struct {
-	Amount              *string `json:"amount"`
-	Assist              *string `json:"assist"`
-	Category            *string `json:"category"`
-	CloseDate           *string `json:"closedate"`
-	CreateDate          *string `json:"createdate"`
-	DealName            *string `json:"dealname"`
-	DealStage           *string `json:"dealstage"`
-	ForecastAmount      *string `json:"hs_forecast_amount"`
-	ForecastProbability *string `json:"hs_forecast_probability"`
-	LastUpdated         *string `json:"notes_last_updated"`
-	OwnerID             *string `json:"hubspot_owner_id"`
+	Amount              *go_types.Float64String   `json:"amount"`
+	Assist              *go_types.Int64String     `json:"assist"`
+	Category            *string                   `json:"category"`
+	CloseDate           *h_types.DateTimeMSString `json:"closedate"`
+	CreateDate          *h_types.DateTimeMSString `json:"createdate"`
+	DealName            *string                   `json:"dealname"`
+	DealStage           *go_types.Int64String     `json:"dealstage"`
+	ForecastAmount      *go_types.Float64String   `json:"hs_forecast_amount"`
+	ForecastProbability *go_types.Float64String   `json:"hs_forecast_probability"`
+	LastUpdated         *h_types.DateTimeMSString `json:"notes_last_updated"`
+	OwnerID             *go_types.Int64String     `json:"hubspot_owner_id"`
 }
 
 type DealProperty string
