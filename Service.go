@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	apiURL string = "https://api.hubapi.com/crm/v3"
+	apiName string = "Hubspot"
+	apiURL  string = "https://api.hubapi.com/crm/v3"
 )
 
 // type
@@ -73,4 +74,20 @@ func (service *Service) url(path string) string {
 
 func (service *Service) get(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
 	return service.httpRequest(http.MethodGet, requestConfig)
+}
+
+func (service *Service) APIName() string {
+	return apiName
+}
+
+func (service *Service) APIKey() string {
+	return service.apiKey
+}
+
+func (service *Service) APICallCount() int64 {
+	return service.httpService.RequestCount()
+}
+
+func (service *Service) APIReset() {
+	service.httpService.ResetRequestCount()
 }

@@ -345,7 +345,7 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 
 	contacts := []Contact{}
 
-	for true {
+	for {
 		contactsResponse := ContactsResponse{}
 
 		if after != "" {

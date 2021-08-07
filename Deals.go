@@ -219,7 +219,7 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 
 	deals := []Deal{}
 
-	for true {
+	for {
 		dealsResponse := DealsResponse{}
 
 		if after != "" {

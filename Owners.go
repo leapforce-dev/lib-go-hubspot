@@ -59,7 +59,7 @@ func (service *Service) GetOwners(config *GetOwnersConfig) (*[]Owner, *errortool
 
 	owners := []Owner{}
 
-	for true {
+	for {
 		ownersResponse := OwnersResponse{}
 
 		if after != "" {

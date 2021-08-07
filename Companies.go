@@ -242,7 +242,7 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 
 	companies := []Company{}
 
-	for true {
+	for {
 		companiesResponse := CompaniesResponse{}
 
 		if after != "" {
