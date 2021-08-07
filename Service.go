@@ -10,9 +10,7 @@ import (
 )
 
 const (
-	APIURL       string = "https://api.hubapi.com/crm/v3"
-	DateFormat   string = "2006-01-02T15:04:05Z"
-	DateFormatMS string = "2006-01-02T15:04:05.999Z"
+	apiURL string = "https://api.hubapi.com/crm/v3"
 )
 
 // type
@@ -26,16 +24,23 @@ type ServiceConfig struct {
 	APIKey string
 }
 
-func NewService(config ServiceConfig) (*Service, *errortools.Error) {
+func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
+	if config == nil {
+		return nil, errortools.ErrorMessage("ServiceConfig must not be a nil pointer")
+	}
+
 	if config.APIKey == "" {
 		return nil, errortools.ErrorMessage("APIKey not provided")
 	}
 
-	httpServiceConfig := go_http.ServiceConfig{}
+	httpService, e := go_http.NewService(&go_http.ServiceConfig{})
+	if e != nil {
+		return nil, e
+	}
 
 	return &Service{
 		apiKey:      config.APIKey,
-		httpService: go_http.NewService(httpServiceConfig),
+		httpService: httpService,
 	}, nil
 }
 
@@ -63,21 +68,9 @@ func (service *Service) httpRequest(httpMethod string, requestConfig *go_http.Re
 }
 
 func (service *Service) url(path string) string {
-	return fmt.Sprintf("%s/%s", APIURL, path)
+	return fmt.Sprintf("%s/%s", apiURL, path)
 }
 
 func (service *Service) get(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
 	return service.httpRequest(http.MethodGet, requestConfig)
-}
-
-func (service *Service) post(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	return service.httpRequest(http.MethodPost, requestConfig)
-}
-
-func (service *Service) put(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	return service.httpRequest(http.MethodPut, requestConfig)
-}
-
-func (service *Service) delete(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	return service.httpRequest(http.MethodDelete, requestConfig)
 }
