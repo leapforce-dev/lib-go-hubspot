@@ -28,15 +28,34 @@ type Contact struct {
 }
 
 type ContactProperties struct {
-	FirstName        *string               `json:"firstname"`
-	LastName         *string               `json:"lastname"`
-	JobTitle         *string               `json:"jobtitle"`
-	Email            *string               `json:"email"`
-	MobilePhone      *string               `json:"mobilephone"`
-	Phone            *string               `json:"phone"`
-	AveragePageviews *go_types.Int64String `json:"hs_analytics_average_page_views"`
-	OriginalSource   *string               `json:"hs_analytics_source"`
-	OwnerID          *go_types.Int64String `json:"hubspot_owner_id"`
+	FirstName                   *string                   `json:"firstname"`
+	LastName                    *string                   `json:"lastname"`
+	JobTitle                    *string                   `json:"jobtitle"`
+	Email                       *string                   `json:"email"`
+	MobilePhone                 *string                   `json:"mobilephone"`
+	Phone                       *string                   `json:"phone"`
+	AveragePageviews            *go_types.Int64String     `json:"hs_analytics_average_page_views"`
+	OriginalSource              *string                   `json:"hs_analytics_source"`
+	OwnerID                     *go_types.Int64String     `json:"hubspot_owner_id"`
+	CampaignOfLastBooking       *string                   `json:"engagements_last_meeting_booked_campaign"`
+	CurrentlyInSequence         *go_types.BoolString      `json:"hs_sequences_is_enrolled"`
+	DateOfLastMeetingBooked     *h_types.DateTimeMSString `json:"engagements_last_meeting_booked"`
+	FirstConversionEventName    *string                   `json:"first_conversion_event_name"`
+	FirstConversionDate         *h_types.DateTimeMSString `json:"first_conversion_date"`
+	LastActivityDate            *h_types.DateTimeMSString `json:"notes_last_updated"`
+	LastContacted               *h_types.DateTimeMSString `json:"notes_last_contacted"`
+	LastEngagementDate          *h_types.DateTimeMSString `json:"hs_last_sales_activity_timestamp"`
+	MediumOfLastBooking         *string                   `json:"engagements_last_meeting_booked_medium"`
+	MembershipNotes             *string                   `json:"hs_content_membership_notes"`
+	Message                     *string                   `json:"message"`
+	NextActivityDate            *h_types.DateTimeMSString `json:"notes_next_activity_date"`
+	NumberOfSalesActivities     *go_types.Int64String     `json:"num_notes"`
+	NumberOfTimesContacted      *go_types.Int64String     `json:"num_contacted_notes"`
+	RecentSalesEmailClickedDate *h_types.DateTimeMSString `json:"hs_sales_email_last_clicked"`
+	RecentSalesEmailOpenedDate  *h_types.DateTimeMSString `json:"hs_sales_email_last_opened"`
+	RecentSalesEmailRepliedDate *h_types.DateTimeMSString `json:"hs_sales_email_last_replied"`
+	SourceOfLastBooking         *string                   `json:"engagements_last_meeting_booked_source"`
+	Status                      *string                   `json:"hs_content_membership_status"`
 }
 
 type ContactProperty string
