@@ -23,7 +23,7 @@ type Owner struct {
 	CreatedAt h_types.DateTimeMSString `json:"createdAt"`
 	Archived  bool                     `json:"archived"`
 	Teams     []OwnerTeam              `json:"teams"`
-	ID        go_types.Int64String     `json:"id"`
+	ID        string                   `json:"id"`
 	Email     string                   `json:"email"`
 	UpdatedAt h_types.DateTimeMSString `json:"updatedAt"`
 }
