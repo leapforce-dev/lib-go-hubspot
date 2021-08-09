@@ -29,16 +29,16 @@ type Deal struct {
 
 type DealProperties struct {
 	Amount              *go_types.Float64String   `json:"amount"`
-	Assist              *go_types.Int64String     `json:"assist"`
+	Assist              *string                   `json:"assist"`
 	Category            *string                   `json:"category"`
 	CloseDate           *h_types.DateTimeMSString `json:"closedate"`
 	CreateDate          *h_types.DateTimeMSString `json:"createdate"`
 	DealName            *string                   `json:"dealname"`
-	DealStage           *go_types.Int64String     `json:"dealstage"`
+	DealStage           *string                   `json:"dealstage"`
 	ForecastAmount      *go_types.Float64String   `json:"hs_forecast_amount"`
 	ForecastProbability *go_types.Float64String   `json:"hs_forecast_probability"`
 	LastUpdated         *h_types.DateTimeMSString `json:"notes_last_updated"`
-	OwnerID             *go_types.Int64String     `json:"hubspot_owner_id"`
+	OwnerID             *string                   `json:"hubspot_owner_id"`
 }
 
 type DealProperty string

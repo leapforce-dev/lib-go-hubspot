@@ -52,7 +52,7 @@ type CompanyProperties struct {
 	FacebookCompanyPage     *string                   `json:"facebook_company_page"`
 	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events"`
 	WebsiteURL              *string                   `json:"website"`
-	OwnerID                 *go_types.Int64String     `json:"hubspot_owner_id"`
+	OwnerID                 *string                   `json:"hubspot_owner_id"`
 }
 
 type CompanyProperty string
