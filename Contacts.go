@@ -2,6 +2,7 @@ package hubspot
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -319,11 +320,12 @@ const (
 )
 
 type GetContactsConfig struct {
-	Limit        *uint
-	After        *string
-	Properties   *[]ContactProperty
-	Associations *[]ObjectType
-	Archived     *bool
+	Limit            *uint
+	After            *string
+	Properties       *[]ContactProperty
+	CustomProperties *[]string
+	Associations     *[]ObjectType
+	Archived         *bool
 }
 
 // GetContacts returns all contacts
@@ -336,14 +338,21 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 		if config.Limit != nil {
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
+		_properties := []string{}
 		if config.Properties != nil {
 			if len(*config.Properties) > 0 {
-				_properties := []string{}
 				for _, p := range *config.Properties {
 					_properties = append(_properties, string(p))
 				}
-				values.Set("properties", strings.Join(_properties, ","))
 			}
+		}
+		if config.CustomProperties != nil {
+			if len(*config.CustomProperties) > 0 {
+				_properties = append(_properties, *config.CustomProperties...)
+			}
+		}
+		if len(_properties) > 0 {
+			values.Set("properties", strings.Join(_properties, ","))
 		}
 		if config.Associations != nil {
 			if len(*config.Associations) > 0 {
@@ -374,11 +383,12 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 		}
 
 		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodGet,
 			URL:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &contactsResponse,
 		}
 
-		_, _, e := service.get(&requestConfig)
+		_, _, e := service.httpRequest(&requestConfig)
 		if e != nil {
 			return nil, e
 		}

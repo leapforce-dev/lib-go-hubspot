@@ -45,7 +45,7 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 	}, nil
 }
 
-func (service *Service) httpRequest(httpMethod string, requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
+func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
 	// add API key
 	_url, err := url.Parse(requestConfig.URL)
 	if err != nil {
@@ -60,7 +60,7 @@ func (service *Service) httpRequest(httpMethod string, requestConfig *go_http.Re
 	errorResponse := ErrorResponse{}
 	(*requestConfig).ErrorModel = &errorResponse
 
-	request, response, e := service.httpService.HTTPRequest(httpMethod, requestConfig)
+	request, response, e := service.httpService.HTTPRequest(requestConfig)
 	if errorResponse.Message != "" {
 		e.SetMessage(errorResponse.Message)
 	}
@@ -70,10 +70,6 @@ func (service *Service) httpRequest(httpMethod string, requestConfig *go_http.Re
 
 func (service *Service) url(path string) string {
 	return fmt.Sprintf("%s/%s", apiURL, path)
-}
-
-func (service *Service) get(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	return service.httpRequest(http.MethodGet, requestConfig)
 }
 
 func (service *Service) APIName() string {

@@ -2,6 +2,7 @@ package hubspot
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -252,11 +253,12 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 		}
 
 		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodGet,
 			URL:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &companiesResponse,
 		}
 
-		_, _, e := service.get(&requestConfig)
+		_, _, e := service.httpRequest(&requestConfig)
 		if e != nil {
 			return nil, e
 		}

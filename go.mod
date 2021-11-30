@@ -3,7 +3,7 @@ module github.com/leapforce-libraries/go_hubspot
 go 1.15
 
 require (
-	github.com/leapforce-libraries/go_errortools v0.0.0-20210628193911-6d614fa4274a
-	github.com/leapforce-libraries/go_http v0.0.0-20210713192036-b809589a39a5
-	github.com/leapforce-libraries/go_types v0.0.0-20210415100703-687744db463d
+	github.com/leapforce-libraries/go_errortools v0.0.0-20211119145736-7b9b61c20618
+	github.com/leapforce-libraries/go_http v0.0.0-20211007104330-25a0057f4099
+	github.com/leapforce-libraries/go_types v0.0.0-20210807150729-611963306a0e
 )
