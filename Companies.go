@@ -1,6 +1,7 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,19 +14,28 @@ import (
 )
 
 type CompaniesResponse struct {
-	Results []Company `json:"results"`
+	Results []company `json:"results"`
 	Paging  *Paging   `json:"paging"`
 }
 
 // Company stores Company from Service
 //
-type Company struct {
+type company struct {
 	ID           string                   `json:"id"`
-	Properties   CompanyProperties        `json:"properties"`
+	Properties   json.RawMessage          `json:"properties"`
 	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeMSString `json:"updatedAt"`
 	Archived     bool                     `json:"archived"`
 	Associations *Associations            `json:"associations"`
+}
+type Company struct {
+	ID               string
+	Properties       CompanyProperties
+	CustomProperties map[string]string
+	CreatedAt        h_types.DateTimeMSString
+	UpdatedAt        h_types.DateTimeMSString
+	Archived         bool
+	Associations     *Associations
 }
 
 type CompanyProperties struct {
@@ -198,11 +208,12 @@ const (
 )
 
 type GetCompaniesConfig struct {
-	Limit        *uint
-	After        *string
-	Properties   *[]CompanyProperty
-	Associations *[]ObjectType
-	Archived     *bool
+	Limit            *uint
+	After            *string
+	Properties       *[]CompanyProperty
+	CustomProperties *[]string
+	Associations     *[]ObjectType
+	Archived         *bool
 }
 
 // GetCompanies returns all companies
@@ -215,14 +226,21 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 		if config.Limit != nil {
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
+		_properties := []string{}
 		if config.Properties != nil {
 			if len(*config.Properties) > 0 {
-				_properties := []string{}
 				for _, p := range *config.Properties {
 					_properties = append(_properties, string(p))
 				}
-				values.Set("properties", strings.Join(_properties, ","))
 			}
+		}
+		if config.CustomProperties != nil {
+			if len(*config.CustomProperties) > 0 {
+				_properties = append(_properties, *config.CustomProperties...)
+			}
+		}
+		if len(_properties) > 0 {
+			values.Set("properties", strings.Join(_properties, ","))
 		}
 		if config.Associations != nil {
 			if len(*config.Associations) > 0 {
@@ -263,7 +281,43 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 			return nil, e
 		}
 
-		companies = append(companies, companiesResponse.Results...)
+		for _, c := range companiesResponse.Results {
+			company_ := Company{
+				ID:               c.ID,
+				CreatedAt:        c.CreatedAt,
+				UpdatedAt:        c.UpdatedAt,
+				Archived:         c.Archived,
+				Associations:     c.Associations,
+				CustomProperties: make(map[string]string),
+			}
+			if c.Properties == nil {
+				continue
+			}
+
+			p := CompanyProperties{}
+			err := json.Unmarshal(c.Properties, &p)
+			if err != nil {
+				return nil, errortools.ErrorMessage(err)
+			}
+			company_.Properties = p
+
+			if config.CustomProperties != nil {
+				p1 := make(map[string]string)
+				err := json.Unmarshal(c.Properties, &p1)
+				if err != nil {
+					return nil, errortools.ErrorMessage(err)
+				}
+
+				for _, cp := range *config.CustomProperties {
+					value, ok := p1[cp]
+					if ok {
+						company_.CustomProperties[cp] = value
+					}
+				}
+			}
+
+			companies = append(companies, company_)
+		}
 
 		if config.After != nil { // explicit after parameter requested
 			break

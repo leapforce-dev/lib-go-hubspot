@@ -1,6 +1,7 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,19 +14,28 @@ import (
 )
 
 type ContactsResponse struct {
-	Results []Contact `json:"results"`
+	Results []contact `json:"results"`
 	Paging  *Paging   `json:"paging"`
 }
 
 // Contact stores Contact from Service
 //
-type Contact struct {
+type contact struct {
 	ID           string                   `json:"id"`
-	Properties   ContactProperties        `json:"properties"`
+	Properties   json.RawMessage          `json:"properties"`
 	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeMSString `json:"updatedAt"`
 	Archived     bool                     `json:"archived"`
 	Associations *Associations            `json:"associations"`
+}
+type Contact struct {
+	ID               string
+	Properties       ContactProperties
+	CustomProperties map[string]string
+	CreatedAt        h_types.DateTimeMSString
+	UpdatedAt        h_types.DateTimeMSString
+	Archived         bool
+	Associations     *Associations
 }
 
 type ContactProperties struct {
@@ -393,7 +403,43 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 			return nil, e
 		}
 
-		contacts = append(contacts, contactsResponse.Results...)
+		for _, c := range contactsResponse.Results {
+			contact_ := Contact{
+				ID:               c.ID,
+				CreatedAt:        c.CreatedAt,
+				UpdatedAt:        c.UpdatedAt,
+				Archived:         c.Archived,
+				Associations:     c.Associations,
+				CustomProperties: make(map[string]string),
+			}
+			if c.Properties == nil {
+				continue
+			}
+
+			p := ContactProperties{}
+			err := json.Unmarshal(c.Properties, &p)
+			if err != nil {
+				return nil, errortools.ErrorMessage(err)
+			}
+			contact_.Properties = p
+
+			if config.CustomProperties != nil {
+				p1 := make(map[string]string)
+				err := json.Unmarshal(c.Properties, &p1)
+				if err != nil {
+					return nil, errortools.ErrorMessage(err)
+				}
+
+				for _, cp := range *config.CustomProperties {
+					value, ok := p1[cp]
+					if ok {
+						contact_.CustomProperties[cp] = value
+					}
+				}
+			}
+
+			contacts = append(contacts, contact_)
+		}
 
 		if config.After != nil { // explicit after parameter requested
 			break
