@@ -21,12 +21,12 @@ type ContactsResponse struct {
 // Contact stores Contact from Service
 //
 type contact struct {
-	ID           string                   `json:"id"`
-	Properties   json.RawMessage          `json:"properties"`
-	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeMSString `json:"updatedAt"`
-	Archived     bool                     `json:"archived"`
-	Associations *Associations            `json:"associations"`
+	ID           string                     `json:"id"`
+	Properties   json.RawMessage            `json:"properties"`
+	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
+	Archived     bool                       `json:"archived"`
+	Associations map[string]AssociationsSet `json:"associations"`
 }
 type Contact struct {
 	ID               string
@@ -35,7 +35,7 @@ type Contact struct {
 	CreatedAt        h_types.DateTimeMSString
 	UpdatedAt        h_types.DateTimeMSString
 	Archived         bool
-	Associations     *Associations
+	Associations     map[string]AssociationsSet
 }
 
 type ContactProperties struct {

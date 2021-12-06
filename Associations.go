@@ -1,12 +1,7 @@
 package hubspot
 
-type Associations struct {
-	Companies struct {
-		Results []*Association `json:"results"`
-	} `json:"companies"`
-	Contacts struct {
-		Results []*Association `json:"results"`
-	} `json:"contacts"`
+type AssociationsSet struct {
+	Results []Association `json:"results"`
 }
 
 type Association struct {

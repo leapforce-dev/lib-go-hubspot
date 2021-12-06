@@ -21,12 +21,12 @@ type CompaniesResponse struct {
 // Company stores Company from Service
 //
 type company struct {
-	ID           string                   `json:"id"`
-	Properties   json.RawMessage          `json:"properties"`
-	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeMSString `json:"updatedAt"`
-	Archived     bool                     `json:"archived"`
-	Associations *Associations            `json:"associations"`
+	ID           string                     `json:"id"`
+	Properties   json.RawMessage            `json:"properties"`
+	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
+	Archived     bool                       `json:"archived"`
+	Associations map[string]AssociationsSet `json:"associations"`
 }
 type Company struct {
 	ID               string
@@ -35,7 +35,7 @@ type Company struct {
 	CreatedAt        h_types.DateTimeMSString
 	UpdatedAt        h_types.DateTimeMSString
 	Archived         bool
-	Associations     *Associations
+	Associations     map[string]AssociationsSet
 }
 
 type CompanyProperties struct {

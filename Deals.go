@@ -20,12 +20,12 @@ type DealsResponse struct {
 // Deal stores Deal from Service
 //
 type Deal struct {
-	ID           string                 `json:"id"`
-	Properties   DealProperties         `json:"properties"`
-	CreatedAt    h_types.DateTimeString `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeString `json:"updatedAt"`
-	Archived     bool                   `json:"archived"`
-	Associations *Associations          `json:"associations"`
+	ID           string                     `json:"id"`
+	Properties   DealProperties             `json:"properties"`
+	CreatedAt    h_types.DateTimeString     `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeString     `json:"updatedAt"`
+	Archived     bool                       `json:"archived"`
+	Associations map[string]AssociationsSet `json:"associations"`
 }
 
 type DealProperties struct {
