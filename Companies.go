@@ -52,7 +52,7 @@ type CompanyProperties struct {
 	Street2                 *string                   `json:"address2"`
 	City                    *string                   `json:"city"`
 	State                   *string                   `json:"state"`
-	ZIP                     *string                   `json:"zip"`
+	Zip                     *string                   `json:"zip"`
 	Country                 *string                   `json:"country"`
 	NumberOfPageViews       *go_types.Int64String     `json:"hs_analytics_num_page_views"`
 	LastContacted           *h_types.DateTimeMSString `json:"notes_last_contacted"`
