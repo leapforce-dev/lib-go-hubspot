@@ -62,7 +62,7 @@ type CompanyProperties struct {
 	LinkedinCompanyPage     *string                   `json:"linkedin_company_page"`
 	FacebookCompanyPage     *string                   `json:"facebook_company_page"`
 	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events"`
-	WebsiteURL              *string                   `json:"website"`
+	WebsiteUrl              *string                   `json:"website"`
 	OwnerID                 *string                   `json:"hubspot_owner_id"`
 }
 
@@ -272,7 +272,7 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodGet,
-			URL:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+			Url:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &companiesResponse,
 		}
 
