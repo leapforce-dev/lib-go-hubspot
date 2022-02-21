@@ -217,14 +217,14 @@ const (
 	ContactPropertyZoomWebinarJoinlink                            ContactProperty = "zoom_webinar_joinlink"
 	ContactPropertyZoomWebinarRegistrationCount                   ContactProperty = "zoom_webinar_registration_count"
 	ContactPropertyFirstName                                      ContactProperty = "firstname"
-	ContactPropertyAnalyticsFirstURL                              ContactProperty = "hs_analytics_first_url"
+	ContactPropertyAnalyticsFirstUrl                              ContactProperty = "hs_analytics_first_url"
 	ContactPropertyEmailDelivered                                 ContactProperty = "hs_email_delivered"
 	ContactPropertyEmailOptout8575803                             ContactProperty = "hs_email_optout_8575803"
 	ContactPropertyEmailOptout8780041                             ContactProperty = "hs_email_optout_8780041"
 	ContactPropertyTwitterHandle                                  ContactProperty = "twitterhandle"
 	ContactPropertyCurrentlyInWorkflow                            ContactProperty = "currentlyinworkflow"
 	ContactPropertyFollowercount                                  ContactProperty = "followercount"
-	ContactPropertyAnalyticsLastURL                               ContactProperty = "hs_analytics_last_url"
+	ContactPropertyAnalyticsLastUrl                               ContactProperty = "hs_analytics_last_url"
 	ContactPropertyEmailOpen                                      ContactProperty = "hs_email_open"
 	ContactPropertyLastName                                       ContactProperty = "lastname"
 	ContactPropertyPartnerRegistrationDomain                      ContactProperty = "partner_registration_domain"
@@ -394,7 +394,7 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodGet,
-			URL:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+			Url:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &contactsResponse,
 		}
 

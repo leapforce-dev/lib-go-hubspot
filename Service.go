@@ -11,7 +11,7 @@ import (
 
 const (
 	apiName string = "Hubspot"
-	apiURL  string = "https://api.hubapi.com/crm/v3"
+	apiUrl  string = "https://api.hubapi.com/crm/v3"
 )
 
 // type
@@ -22,7 +22,7 @@ type Service struct {
 }
 
 type ServiceConfig struct {
-	APIKey string
+	ApiKey string
 }
 
 func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
@@ -30,8 +30,8 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 		return nil, errortools.ErrorMessage("ServiceConfig must not be a nil pointer")
 	}
 
-	if config.APIKey == "" {
-		return nil, errortools.ErrorMessage("APIKey not provided")
+	if config.ApiKey == "" {
+		return nil, errortools.ErrorMessage("ApiKey not provided")
 	}
 
 	httpService, e := go_http.NewService(&go_http.ServiceConfig{})
@@ -40,27 +40,27 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 	}
 
 	return &Service{
-		apiKey:      config.APIKey,
+		apiKey:      config.ApiKey,
 		httpService: httpService,
 	}, nil
 }
 
 func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	// add API key
-	_url, err := url.Parse(requestConfig.URL)
+	// add Api key
+	_url, err := url.Parse(requestConfig.Url)
 	if err != nil {
 		return nil, nil, errortools.ErrorMessage(err)
 	}
 	query := _url.Query()
 	query.Set("hapikey", service.apiKey)
 
-	(*requestConfig).URL = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
+	(*requestConfig).Url = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
 
 	// add error model
 	errorResponse := ErrorResponse{}
 	(*requestConfig).ErrorModel = &errorResponse
 
-	request, response, e := service.httpService.HTTPRequest(requestConfig)
+	request, response, e := service.httpService.HttpRequest(requestConfig)
 	if errorResponse.Message != "" {
 		e.SetMessage(errorResponse.Message)
 	}
@@ -69,21 +69,21 @@ func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http
 }
 
 func (service *Service) url(path string) string {
-	return fmt.Sprintf("%s/%s", apiURL, path)
+	return fmt.Sprintf("%s/%s", apiUrl, path)
 }
 
-func (service *Service) APIName() string {
+func (service *Service) ApiName() string {
 	return apiName
 }
 
-func (service *Service) APIKey() string {
+func (service *Service) ApiKey() string {
 	return service.apiKey
 }
 
-func (service *Service) APICallCount() int64 {
+func (service *Service) ApiCallCount() int64 {
 	return service.httpService.RequestCount()
 }
 
-func (service *Service) APIReset() {
+func (service *Service) ApiReset() {
 	service.httpService.ResetRequestCount()
 }

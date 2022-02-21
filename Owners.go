@@ -71,7 +71,7 @@ func (service *Service) GetOwners(config *GetOwnersConfig) (*[]Owner, *errortool
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodGet,
-			URL:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+			Url:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &ownersResponse,
 		}
 
