@@ -21,7 +21,7 @@ type CompaniesResponse struct {
 // Company stores Company from Service
 //
 type company struct {
-	ID           string                     `json:"id"`
+	Id           string                     `json:"id"`
 	Properties   json.RawMessage            `json:"properties"`
 	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
@@ -29,7 +29,7 @@ type company struct {
 	Associations map[string]AssociationsSet `json:"associations"`
 }
 type Company struct {
-	ID               string
+	Id               string
 	Properties       CompanyProperties
 	CustomProperties map[string]string
 	CreatedAt        h_types.DateTimeMSString
@@ -63,7 +63,7 @@ type CompanyProperties struct {
 	FacebookCompanyPage     *string                   `json:"facebook_company_page"`
 	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events"`
 	WebsiteUrl              *string                   `json:"website"`
-	OwnerID                 *string                   `json:"hubspot_owner_id"`
+	OwnerId                 *string                   `json:"hubspot_owner_id"`
 }
 
 type CompanyProperty string
@@ -84,7 +84,7 @@ const (
 	CompanyPropertyFoundedYear                                                 CompanyProperty = "founded_year"
 	CompanyPropertyGdsName                                                     CompanyProperty = "gds_name"
 	CompanyPropertyAdditionalDomains                                           CompanyProperty = "hs_additional_domains"
-	CompanyPropertyAllAssignedBusinessUnitIDs                                  CompanyProperty = "hs_all_assigned_business_unit_ids"
+	CompanyPropertyAllAssignedBusinessUnitIds                                  CompanyProperty = "hs_all_assigned_business_unit_ids"
 	CompanyPropertyAnalyticsFirstTimestamp                                     CompanyProperty = "hs_analytics_first_timestamp"
 	CompanyPropertyAnalyticsFirstTimestampTimestampEarliestValue               CompanyProperty = "hs_analytics_first_timestamp_timestamp_earliest_value_11e3a63a"
 	CompanyPropertyAnalyticsFirstTouchConvertingCampaign                       CompanyProperty = "hs_analytics_first_touch_converting_campaign"
@@ -108,7 +108,7 @@ const (
 	CompanyPropertyAnalyticsSourceData2TimestampEarliestValue                  CompanyProperty = "hs_analytics_source_data_2_timestamp_earliest_value_9b2f9400"
 	CompanyPropertyAnalyticsSourceTimestampEarliestValue                       CompanyProperty = "hs_analytics_source_timestamp_earliest_value_25a3a52c"
 	CompanyPropertyAvatarFilemanagerKey                                        CompanyProperty = "hs_avatar_filemanager_key"
-	CompanyPropertyCreatedByUserID                                             CompanyProperty = "hs_created_by_user_id"
+	CompanyPropertyCreatedByUserId                                             CompanyProperty = "hs_created_by_user_id"
 	CompanyPropertyHubspotCreatedate                                           CompanyProperty = "hs_createdate"
 	CompanyPropertyIdealCustomerProfile                                        CompanyProperty = "hs_ideal_customer_profile"
 	CompanyPropertyIsTargetAccount                                             CompanyProperty = "hs_is_target_account"
@@ -123,7 +123,7 @@ const (
 	CompanyPropertyNumContactsWithBuyingRoles                                  CompanyProperty = "hs_num_contacts_with_buying_roles"
 	CompanyPropertyNumDecisionMakers                                           CompanyProperty = "hs_num_decision_makers"
 	CompanyPropertyNumOpenDeals                                                CompanyProperty = "hs_num_open_deals"
-	CompanyPropertyObjectID                                                    CompanyProperty = "hs_object_id"
+	CompanyPropertyObjectId                                                    CompanyProperty = "hs_object_id"
 	CompanyPropertyPredictiveContactscoreV2                                    CompanyProperty = "hs_predictivecontactscore_v2"
 	CompanyPropertyPredictiveContactscoreV2NextMaxMax                          CompanyProperty = "hs_predictivecontactscore_v2_next_max_max_d4e58c1e"
 	CompanyPropertyTargetAccount                                               CompanyProperty = "hs_target_account"
@@ -131,10 +131,10 @@ const (
 	CompanyPropertyTargetAccountRecommendationSnoozeTime                       CompanyProperty = "hs_target_account_recommendation_snooze_time"
 	CompanyPropertyTargetAccountRecommendationState                            CompanyProperty = "hs_target_account_recommendation_state"
 	CompanyPropertyTotalDealValue                                              CompanyProperty = "hs_total_deal_value"
-	CompanyPropertyUpdatedByUserID                                             CompanyProperty = "hs_updated_by_user_id"
+	CompanyPropertyUpdatedByUserId                                             CompanyProperty = "hs_updated_by_user_id"
 	CompanyPropertyUserIdsOfAllOwners                                          CompanyProperty = "hs_user_ids_of_all_owners"
 	CompanyPropertyOwnerAssigneddate                                           CompanyProperty = "hubspot_owner_assigneddate"
-	CompanyPropertyInsightlyCompanyID                                          CompanyProperty = "insightly_company_id"
+	CompanyPropertyInsightlyCompanyId                                          CompanyProperty = "insightly_company_id"
 	CompanyPropertyIsPublic                                                    CompanyProperty = "is_public"
 	CompanyPropertyNetwerken                                                   CompanyProperty = "netwerken"
 	CompanyPropertyNumAssociatedContacts                                       CompanyProperty = "num_associated_contacts"
@@ -176,7 +176,7 @@ const (
 	CompanyPropertyEngagementsLastMeetingBookedSource                          CompanyProperty = "engagements_last_meeting_booked_source"
 	CompanyPropertyLatestMeetingActivity                                       CompanyProperty = "hs_latest_meeting_activity"
 	CompanyPropertySalesEmailLastReplied                                       CompanyProperty = "hs_sales_email_last_replied"
-	CompanyPropertyOwnerID                                                     CompanyProperty = "hubspot_owner_id"
+	CompanyPropertyOwnerId                                                     CompanyProperty = "hubspot_owner_id"
 	CompanyPropertyNotesLastContacted                                          CompanyProperty = "notes_last_contacted"
 	CompanyPropertyNotesLastUpdated                                            CompanyProperty = "notes_last_updated"
 	CompanyPropertyNotesNextActivityDate                                       CompanyProperty = "notes_next_activity_date"
@@ -184,18 +184,18 @@ const (
 	CompanyPropertyNumNotes                                                    CompanyProperty = "num_notes"
 	CompanyPropertyZIP                                                         CompanyProperty = "zip"
 	CompanyPropertyCountry                                                     CompanyProperty = "country"
-	CompanyPropertyTeamID                                                      CompanyProperty = "hubspot_team_id"
+	CompanyPropertyTeamId                                                      CompanyProperty = "hubspot_team_id"
 	CompanyPropertyAllOwnerIds                                                 CompanyProperty = "hs_all_owner_ids"
 	CompanyPropertyWebsite                                                     CompanyProperty = "website"
 	CompanyPropertyDomain                                                      CompanyProperty = "domain"
-	CompanyPropertyAllTeamIDs                                                  CompanyProperty = "hs_all_team_ids"
-	CompanyPropertyAllAccessibleTeamIDs                                        CompanyProperty = "hs_all_accessible_team_ids"
+	CompanyPropertyAllTeamIds                                                  CompanyProperty = "hs_all_team_ids"
+	CompanyPropertyAllAccessibleTeamIds                                        CompanyProperty = "hs_all_accessible_team_ids"
 	CompanyPropertyNumberofemployees                                           CompanyProperty = "numberofemployees"
 	CompanyPropertyIndustry                                                    CompanyProperty = "industry"
 	CompanyPropertyAnnualRevenue                                               CompanyProperty = "annualrevenue"
 	CompanyPropertyLifecyclestage                                              CompanyProperty = "lifecyclestage"
 	CompanyPropertyLeadStatus                                                  CompanyProperty = "hs_lead_status"
-	CompanyPropertyParentCompanyID                                             CompanyProperty = "hs_parent_company_id"
+	CompanyPropertyParentCompanyId                                             CompanyProperty = "hs_parent_company_id"
 	CompanyPropertyType                                                        CompanyProperty = "type"
 	CompanyPropertyDescription                                                 CompanyProperty = "description"
 	CompanyPropertyNumChildCompanies                                           CompanyProperty = "hs_num_child_companies"
@@ -283,7 +283,7 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 
 		for _, c := range companiesResponse.Results {
 			company_ := Company{
-				ID:               c.ID,
+				Id:               c.Id,
 				CreatedAt:        c.CreatedAt,
 				UpdatedAt:        c.UpdatedAt,
 				Archived:         c.Archived,

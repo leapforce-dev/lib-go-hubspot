@@ -20,7 +20,7 @@ type PipelinesResponse struct {
 type Pipeline struct {
 	Label        string                   `json:"label"`
 	DisplayOrder int64                    `json:"displayOrder"`
-	ID           string                   `json:"id"`
+	Id           string                   `json:"id"`
 	Stages       []PipelineStage          `json:"stages"`
 	CreatedAt    h_types.DateTimeMSString `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeString   `json:"updatedAt"`
@@ -34,7 +34,7 @@ type PipelineStage struct {
 		IsClosed    *go_types.BoolString    `json:"isClosed"`
 		Probability *go_types.Float64String `json:"probability"`
 	} `json:"metadata"`
-	ID        string                   `json:"id"`
+	Id        string                   `json:"id"`
 	CreatedAt h_types.DateTimeMSString `json:"createdAt"`
 	UpdatedAt h_types.DateTimeMSString `json:"updatedAt"`
 	Archived  bool                     `json:"archived"`

@@ -20,7 +20,7 @@ type DealsResponse struct {
 // Deal stores Deal from Service
 //
 type Deal struct {
-	ID           string                     `json:"id"`
+	Id           string                     `json:"id"`
 	Properties   DealProperties             `json:"properties"`
 	CreatedAt    h_types.DateTimeString     `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeString     `json:"updatedAt"`
@@ -39,7 +39,7 @@ type DealProperties struct {
 	ForecastAmount      *go_types.Float64String   `json:"hs_forecast_amount"`
 	ForecastProbability *go_types.Float64String   `json:"hs_forecast_probability"`
 	LastUpdated         *h_types.DateTimeMSString `json:"notes_last_updated"`
-	OwnerID             *string                   `json:"hubspot_owner_id"`
+	OwnerId             *string                   `json:"hubspot_owner_id"`
 }
 
 type DealProperty string
@@ -51,7 +51,7 @@ const (
 	DealPropertyDaysToClose                                          DealProperty = "days_to_close"
 	DealPropertyDealCurrencyCode                                     DealProperty = "deal_currency_code"
 	DealPropertyAcv                                                  DealProperty = "hs_acv"
-	DealPropertyAllAssignedBusinessUnitIDs                           DealProperty = "hs_all_assigned_business_unit_ids"
+	DealPropertyAllAssignedBusinessUnitIds                           DealProperty = "hs_all_assigned_business_unit_ids"
 	DealPropertyAnalyticsSource                                      DealProperty = "hs_analytics_source"
 	DealPropertyAnalyticsSourceData1                                 DealProperty = "hs_analytics_source_data_1"
 	DealPropertyAnalyticsSourceData2                                 DealProperty = "hs_analytics_source_data_2"
@@ -59,7 +59,7 @@ const (
 	DealPropertyCampaign                                             DealProperty = "hs_campaign"
 	DealPropertyClosedAmount                                         DealProperty = "hs_closed_amount"
 	DealPropertyClosedAmountInHomeCurrency                           DealProperty = "hs_closed_amount_in_home_currency"
-	DealPropertyCreatedByUserID                                      DealProperty = "hs_created_by_user_id"
+	DealPropertyCreatedByUserId                                      DealProperty = "hs_created_by_user_id"
 	DealPropertyDateEntered9320750                                   DealProperty = "hs_date_entered_9320750"
 	DealPropertyDateEntered9320751                                   DealProperty = "hs_date_entered_9320751"
 	DealPropertyDateEntered9320752                                   DealProperty = "hs_date_entered_9320752"
@@ -110,10 +110,10 @@ const (
 	DealPropertyLineItemGlobalTermRecurringBillingfrequency          DealProperty = "hs_line_item_global_term_recurringbillingfrequency"
 	DealPropertyLineItemGlobalTermRecurringBillingfrequencyEnabled   DealProperty = "hs_line_item_global_term_recurringbillingfrequency_enabled"
 	DealPropertyManualForecastCategory                               DealProperty = "hs_manual_forecast_category"
-	DealPropertyMergedObjectIDs                                      DealProperty = "hs_merged_object_ids"
+	DealPropertyMergedObjectIds                                      DealProperty = "hs_merged_object_ids"
 	DealPropertyMrr                                                  DealProperty = "hs_mrr"
 	DealPropertyNextStep                                             DealProperty = "hs_next_step"
-	DealPropertyObjectID                                             DealProperty = "hs_object_id"
+	DealPropertyObjectId                                             DealProperty = "hs_object_id"
 	DealPropertyPredictedAmount                                      DealProperty = "hs_predicted_amount"
 	DealPropertyPredictedAmountInHomeCurrency                        DealProperty = "hs_predicted_amount_in_home_currency"
 	DealPropertyProjectedAmount                                      DealProperty = "hs_projected_amount"
@@ -136,10 +136,10 @@ const (
 	DealPropertyTimeInDecisionMakerBoughtIn                          DealProperty = "hs_time_in_decisionmakerboughtin"
 	DealPropertyTimeInPresentationScheduled                          DealProperty = "hs_time_in_presentationscheduled"
 	DealPropertyTimeInQualifiedToBuy                                 DealProperty = "hs_time_in_qualifiedtobuy"
-	DealPropertyUpdatedByUserID                                      DealProperty = "hs_updated_by_user_id"
+	DealPropertyUpdatedByUserId                                      DealProperty = "hs_updated_by_user_id"
 	DealPropertyUserIdsOfAllOwners                                   DealProperty = "hs_user_ids_of_all_owners"
 	DealPropertyOwnerAssigneddate                                    DealProperty = "hubspot_owner_assigneddate"
-	DealPropertyInsightlyOpportunityID                               DealProperty = "insightly_opportunity_id"
+	DealPropertyInsightlyOpportunityId                               DealProperty = "insightly_opportunity_id"
 	DealPropertyLeadSourceBookedMeetings                             DealProperty = "lead_source___booked_meetings"
 	DealPropertyLostDealReasons                                      DealProperty = "lost_deal_reasons"
 	DealPropertyMeetingBookedBy                                      DealProperty = "meeting_booked_by"
@@ -156,19 +156,19 @@ const (
 	DealPropertyEngagementsLastMeetingBookedSource                   DealProperty = "engagements_last_meeting_booked_source"
 	DealPropertyLatestMeetingActivity                                DealProperty = "hs_latest_meeting_activity"
 	DealPropertySalesEmailLastReplied                                DealProperty = "hs_sales_email_last_replied"
-	DealPropertyOwnerID                                              DealProperty = "hubspot_owner_id"
+	DealPropertyOwnerId                                              DealProperty = "hubspot_owner_id"
 	DealPropertyNotesLastContacted                                   DealProperty = "notes_last_contacted"
 	DealPropertyNotesLastUpdated                                     DealProperty = "notes_last_updated"
 	DealPropertyNotesNextActivityDate                                DealProperty = "notes_next_activity_date"
 	DealPropertyNumContactedNotes                                    DealProperty = "num_contacted_notes"
 	DealPropertyNumNotes                                             DealProperty = "num_notes"
 	DealPropertyHubspotCreatedate                                    DealProperty = "hs_createdate"
-	DealPropertyTeamID                                               DealProperty = "hubspot_team_id"
+	DealPropertyTeamId                                               DealProperty = "hubspot_team_id"
 	DealPropertyDealtype                                             DealProperty = "dealtype"
-	DealPropertyAllOwnerIDs                                          DealProperty = "hs_all_owner_ids"
+	DealPropertyAllOwnerIds                                          DealProperty = "hs_all_owner_ids"
 	DealPropertyDescription                                          DealProperty = "description"
-	DealPropertyAllTeamIDs                                           DealProperty = "hs_all_team_ids"
-	DealPropertyAllAccessibleTeamIDs                                 DealProperty = "hs_all_accessible_team_ids"
+	DealPropertyAllTeamIds                                           DealProperty = "hs_all_team_ids"
+	DealPropertyAllAccessibleTeamIds                                 DealProperty = "hs_all_accessible_team_ids"
 	DealPropertyNumAssociatedContacts                                DealProperty = "num_associated_contacts"
 	DealPropertyClosedLostReason                                     DealProperty = "closed_lost_reason"
 	DealPropertyClosedWonReason                                      DealProperty = "closed_won_reason"

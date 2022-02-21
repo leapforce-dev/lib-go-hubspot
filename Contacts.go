@@ -21,7 +21,7 @@ type ContactsResponse struct {
 // Contact stores Contact from Service
 //
 type contact struct {
-	ID           string                     `json:"id"`
+	Id           string                     `json:"id"`
 	Properties   json.RawMessage            `json:"properties"`
 	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
@@ -29,7 +29,7 @@ type contact struct {
 	Associations map[string]AssociationsSet `json:"associations"`
 }
 type Contact struct {
-	ID               string
+	Id               string
 	Properties       ContactProperties
 	CustomProperties map[string]string
 	CreatedAt        h_types.DateTimeMSString
@@ -47,7 +47,7 @@ type ContactProperties struct {
 	Phone                       *string                   `json:"phone"`
 	AveragePageviews            *go_types.Int64String     `json:"hs_analytics_average_page_views"`
 	OriginalSource              *string                   `json:"hs_analytics_source"`
-	OwnerID                     *go_types.Int64String     `json:"hubspot_owner_id"`
+	OwnerId                     *go_types.Int64String     `json:"hubspot_owner_id"`
 	CampaignOfLastBooking       *string                   `json:"engagements_last_meeting_booked_campaign"`
 	CurrentlyInSequence         *go_types.BoolString      `json:"hs_sequences_is_enrolled"`
 	DateOfLastMeetingBooked     *h_types.DateTimeMSString `json:"engagements_last_meeting_booked"`
@@ -86,7 +86,7 @@ const (
 	ContactPropertyGender                                         ContactProperty = "gender"
 	ContactPropertyGraduationDate                                 ContactProperty = "graduation_date"
 	ContactPropertyAdditionalEmails                               ContactProperty = "hs_additional_emails"
-	ContactPropertyAllAssignedBusinessUnitIDs                     ContactProperty = "hs_all_assigned_business_unit_ids"
+	ContactPropertyAllAssignedBusinessUnitIds                     ContactProperty = "hs_all_assigned_business_unit_ids"
 	ContactPropertyAllContactVids                                 ContactProperty = "hs_all_contact_vids"
 	ContactPropertyAnalyticsFirstTouchConvertingCampaign          ContactProperty = "hs_analytics_first_touch_converting_campaign"
 	ContactPropertyAnalyticsLastTouchConvertingCampaign           ContactProperty = "hs_analytics_last_touch_converting_campaign"
@@ -109,7 +109,7 @@ const (
 	ContactPropertyCountIsUnworked                                ContactProperty = "hs_count_is_unworked"
 	ContactPropertyCountIsWorked                                  ContactProperty = "hs_count_is_worked"
 	ContactPropertyCreatedByConversations                         ContactProperty = "hs_created_by_conversations"
-	ContactPropertyCreatedByUserID                                ContactProperty = "hs_created_by_user_id"
+	ContactPropertyCreatedByUserId                                ContactProperty = "hs_created_by_user_id"
 	ContactPropertyHubspotCreatedate                              ContactProperty = "hs_createdate"
 	ContactPropertyDocumentLastRevisited                          ContactProperty = "hs_document_last_revisited"
 	ContactPropertyEmailBadAddress                                ContactProperty = "hs_email_bad_address"
@@ -123,16 +123,16 @@ const (
 	ContactPropertyEmailSendsSinceLastEngagement                  ContactProperty = "hs_email_sends_since_last_engagement"
 	ContactPropertyEmailconfirmationstatus                        ContactProperty = "hs_emailconfirmationstatus"
 	ContactPropertyFacebookAdClicked                              ContactProperty = "hs_facebook_ad_clicked"
-	ContactPropertyFacebookClickID                                ContactProperty = "hs_facebook_click_id"
-	ContactPropertyFacebookID                                     ContactProperty = "hs_facebookid"
+	ContactPropertyFacebookClickId                                ContactProperty = "hs_facebook_click_id"
+	ContactPropertyFacebookId                                     ContactProperty = "hs_facebookid"
 	ContactPropertyFeedbackLastNpsFollowUp                        ContactProperty = "hs_feedback_last_nps_follow_up"
 	ContactPropertyFeedbackLastNpsRating                          ContactProperty = "hs_feedback_last_nps_rating"
 	ContactPropertyFeedbackLastSurveyDate                         ContactProperty = "hs_feedback_last_survey_date"
 	ContactPropertyFeedbackShowNpsWebSurvey                       ContactProperty = "hs_feedback_show_nps_web_survey"
-	ContactPropertyFirstEngagementObjectID                        ContactProperty = "hs_first_engagement_object_id"
-	ContactPropertyGoogleClickID                                  ContactProperty = "hs_google_click_id"
+	ContactPropertyFirstEngagementObjectId                        ContactProperty = "hs_first_engagement_object_id"
+	ContactPropertyGoogleClickId                                  ContactProperty = "hs_google_click_id"
 	ContactPropertyGoogleplusid                                   ContactProperty = "hs_googleplusid"
-	ContactPropertyIPTimezone                                     ContactProperty = "hs_ip_timezone"
+	ContactPropertyIpTimezone                                     ContactProperty = "hs_ip_timezone"
 	ContactPropertyIsContact                                      ContactProperty = "hs_is_contact"
 	ContactPropertyIsUnworked                                     ContactProperty = "hs_is_unworked"
 	ContactPropertyLastSalesActivityDate                          ContactProperty = "hs_last_sales_activity_date"
@@ -145,13 +145,13 @@ const (
 	ContactPropertyLatestSequenceUnenrolledDate                   ContactProperty = "hs_latest_sequence_unenrolled_date"
 	ContactPropertyLeadStatus                                     ContactProperty = "hs_lead_status"
 	ContactPropertyLegalBasis                                     ContactProperty = "hs_legal_basis"
-	ContactPropertyLinkedinID                                     ContactProperty = "hs_linkedinid"
-	ContactPropertyMarketableReasonID                             ContactProperty = "hs_marketable_reason_id"
+	ContactPropertyLinkedinId                                     ContactProperty = "hs_linkedinid"
+	ContactPropertyMarketableReasonId                             ContactProperty = "hs_marketable_reason_id"
 	ContactPropertyMarketableReasonType                           ContactProperty = "hs_marketable_reason_type"
 	ContactPropertyMarketableStatus                               ContactProperty = "hs_marketable_status"
 	ContactPropertyMarketableUntilRenewal                         ContactProperty = "hs_marketable_until_renewal"
-	ContactPropertyMergedObjectIDs                                ContactProperty = "hs_merged_object_ids"
-	ContactPropertyObjectID                                       ContactProperty = "hs_object_id"
+	ContactPropertyMergedObjectIds                                ContactProperty = "hs_merged_object_ids"
+	ContactPropertyObjectId                                       ContactProperty = "hs_object_id"
 	ContactPropertyPredictivecontactscoreV2                       ContactProperty = "hs_predictivecontactscore_v2"
 	ContactPropertyPredictiveScoringTier                          ContactProperty = "hs_predictivescoringtier"
 	ContactPropertySaFirstEngagementDate                          ContactProperty = "hs_sa_first_engagement_date"
@@ -176,17 +176,17 @@ const (
 	ContactPropertyTimeToMoveFromSalesqualifiedleadToCustomer     ContactProperty = "hs_time_to_move_from_salesqualifiedlead_to_customer"
 	ContactPropertyTimeToMoveFromSubscriberToCustomer             ContactProperty = "hs_time_to_move_from_subscriber_to_customer"
 	ContactPropertyTwitterid                                      ContactProperty = "hs_twitterid"
-	ContactPropertyUpdatedByUserID                                ContactProperty = "hs_updated_by_user_id"
-	ContactPropertyUserIDsOfAllOwners                             ContactProperty = "hs_user_ids_of_all_owners"
+	ContactPropertyUpdatedByUserId                                ContactProperty = "hs_updated_by_user_id"
+	ContactPropertyUserIdsOfAllOwners                             ContactProperty = "hs_user_ids_of_all_owners"
 	ContactPropertyOwnerAssigneddate                              ContactProperty = "hubspot_owner_assigneddate"
-	ContactPropertyInsightlyContactID                             ContactProperty = "insightly_contact_id"
-	ContactPropertyIPCity                                         ContactProperty = "ip_city"
-	ContactPropertyIPCountry                                      ContactProperty = "ip_country"
-	ContactPropertyIPCountryCode                                  ContactProperty = "ip_country_code"
-	ContactPropertyIPLatLon                                       ContactProperty = "ip_latlon"
-	ContactPropertyIPState                                        ContactProperty = "ip_state"
-	ContactPropertyIPStateCode                                    ContactProperty = "ip_state_code"
-	ContactPropertyIPZIPCode                                      ContactProperty = "ip_zipcode"
+	ContactPropertyInsightlyContactId                             ContactProperty = "insightly_contact_id"
+	ContactPropertyIpCity                                         ContactProperty = "ip_city"
+	ContactPropertyIpCountry                                      ContactProperty = "ip_country"
+	ContactPropertyIpCountryCode                                  ContactProperty = "ip_country_code"
+	ContactPropertyIpLatLon                                       ContactProperty = "ip_latlon"
+	ContactPropertyIpState                                        ContactProperty = "ip_state"
+	ContactPropertyIpStateCode                                    ContactProperty = "ip_state_code"
+	ContactPropertyIpZipCode                                      ContactProperty = "ip_zipcode"
 	ContactPropertyJobFunction                                    ContactProperty = "job_function"
 	ContactPropertyLastmodifieddate                               ContactProperty = "lastmodifieddate"
 	ContactPropertyLinkedin                                       ContactProperty = "linkedin"
@@ -200,7 +200,7 @@ const (
 	ContactPropertyRecentConversionEventName                      ContactProperty = "recent_conversion_event_name"
 	ContactPropertyRecentDealAmount                               ContactProperty = "recent_deal_amount"
 	ContactPropertyRecentDealCloseDate                            ContactProperty = "recent_deal_close_date"
-	ContactPropertyRecordID                                       ContactProperty = "record_id"
+	ContactPropertyRecordId                                       ContactProperty = "record_id"
 	ContactPropertyRelationshipStatus                             ContactProperty = "relationship_status"
 	ContactPropertySchool                                         ContactProperty = "school"
 	ContactPropertySeniority                                      ContactProperty = "seniority"
@@ -261,7 +261,7 @@ const (
 	ContactPropertyLatestMeetingActivity                          ContactProperty = "hs_latest_meeting_activity"
 	ContactPropertySalesEmailLastReplied                          ContactProperty = "hs_sales_email_last_replied"
 	ContactPropertySocialLinkedinClicks                           ContactProperty = "hs_social_linkedin_clicks"
-	ContactPropertyOwnerID                                        ContactProperty = "hubspot_owner_id"
+	ContactPropertyOwnerId                                        ContactProperty = "hubspot_owner_id"
 	ContactPropertyNotesLastContacted                             ContactProperty = "notes_last_contacted"
 	ContactPropertyNotesLastUpdated                               ContactProperty = "notes_last_updated"
 	ContactPropertyNotesNextActivityDate                          ContactProperty = "notes_next_activity_date"
@@ -275,20 +275,20 @@ const (
 	ContactPropertyAnalyticsLastTimestamp                         ContactProperty = "hs_analytics_last_timestamp"
 	ContactPropertyEmailLastClickDate                             ContactProperty = "hs_email_last_click_date"
 	ContactPropertySocialGooglePlusClicks                         ContactProperty = "hs_social_google_plus_clicks"
-	ContactPropertyTeamID                                         ContactProperty = "hubspot_team_id"
+	ContactPropertyTeamId                                         ContactProperty = "hubspot_team_id"
 	ContactPropertyLinkedinBio                                    ContactProperty = "linkedinbio"
 	ContactPropertyTwitterBio                                     ContactProperty = "twitterbio"
-	ContactPropertyAllOwnerIDs                                    ContactProperty = "hs_all_owner_ids"
+	ContactPropertyAllOwnerIds                                    ContactProperty = "hs_all_owner_ids"
 	ContactPropertyAnalyticsLastVisitTimestamp                    ContactProperty = "hs_analytics_last_visit_timestamp"
 	ContactPropertyEmailFirstSendDate                             ContactProperty = "hs_email_first_send_date"
 	ContactPropertySocialNumBroadcastClicks                       ContactProperty = "hs_social_num_broadcast_clicks"
 	ContactPropertyState                                          ContactProperty = "state"
-	ContactPropertyAllTeamIDs                                     ContactProperty = "hs_all_team_ids"
+	ContactPropertyAllTeamIds                                     ContactProperty = "hs_all_team_ids"
 	ContactPropertyAnalyticsSource                                ContactProperty = "hs_analytics_source"
 	ContactPropertyEmailFirstOpenDate                             ContactProperty = "hs_email_first_open_date"
-	ContactPropertyZIP                                            ContactProperty = "zip"
+	ContactPropertyZip                                            ContactProperty = "zip"
 	ContactPropertyCountry                                        ContactProperty = "country"
-	ContactPropertyAllAccessibleTeamIDs                           ContactProperty = "hs_all_accessible_team_ids"
+	ContactPropertyAllAccessibleTeamIds                           ContactProperty = "hs_all_accessible_team_ids"
 	ContactPropertyAnalyticsSourceData1                           ContactProperty = "hs_analytics_source_data_1"
 	ContactPropertyEmailFirstClickDate                            ContactProperty = "hs_email_first_click_date"
 	ContactPropertyLinkedinconnections                            ContactProperty = "linkedinconnections"
@@ -405,7 +405,7 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 
 		for _, c := range contactsResponse.Results {
 			contact_ := Contact{
-				ID:               c.ID,
+				Id:               c.Id,
 				CreatedAt:        c.CreatedAt,
 				UpdatedAt:        c.UpdatedAt,
 				Archived:         c.Archived,

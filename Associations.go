@@ -5,6 +5,6 @@ type AssociationsSet struct {
 }
 
 type Association struct {
-	ID   string `json:"id"`
+	Id   string `json:"id"`
 	Type string `json:"type"`
 }
