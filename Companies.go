@@ -336,3 +336,33 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 
 	return &companies, nil
 }
+
+type UpdateCompanyConfig struct {
+	CompanyId  string
+	Properties CompanyProperties
+}
+
+func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *errortools.Error) {
+	endpoint := "objects/companies"
+	company := Company{}
+
+	properties := struct {
+		CompanyProperties `json:"properties"`
+	}{
+		config.Properties,
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPatch,
+		Url:           service.url(fmt.Sprintf("%s/%s", endpoint, config.CompanyId)),
+		BodyModel:     properties,
+		ResponseModel: &company,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &company, nil
+}
