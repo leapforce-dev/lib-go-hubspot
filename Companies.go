@@ -282,7 +282,11 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 		}
 
 		for _, c := range companiesResponse.Results {
-			company_ := Company{
+			company_, e := getCompany(&c, config.CustomProperties)
+			if e != nil {
+				return nil, e
+			}
+			/*company_ := Company{
 				Id:               c.Id,
 				CreatedAt:        c.CreatedAt,
 				UpdatedAt:        c.UpdatedAt,
@@ -314,9 +318,9 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 						company_.CustomProperties[cp] = value
 					}
 				}
-			}
+			}*/
 
-			companies = append(companies, company_)
+			companies = append(companies, *company_)
 		}
 
 		if config.After != nil { // explicit after parameter requested
@@ -365,4 +369,99 @@ func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *e
 	}
 
 	return &company, nil
+}
+
+type GetCompanyConfig struct {
+	CompanyId        string
+	Properties       *[]CompanyProperty
+	CustomProperties *[]string
+	Associations     *[]ObjectType
+}
+
+// GetCompany returns a specific company
+//
+func (service *Service) GetCompany(config *GetCompanyConfig) (*Company, *errortools.Error) {
+	values := url.Values{}
+	endpoint := "objects/companies"
+
+	if config == nil {
+		return nil, errortools.ErrorMessage("config is nil")
+	}
+
+	_properties := []string{}
+	if config.Properties != nil {
+		if len(*config.Properties) > 0 {
+			for _, p := range *config.Properties {
+				_properties = append(_properties, string(p))
+			}
+		}
+	}
+	if config.CustomProperties != nil {
+		if len(*config.CustomProperties) > 0 {
+			_properties = append(_properties, *config.CustomProperties...)
+		}
+	}
+	if len(_properties) > 0 {
+		values.Set("properties", strings.Join(_properties, ","))
+	}
+	if config.Associations != nil {
+		if len(*config.Associations) > 0 {
+			_associations := []string{}
+			for _, a := range *config.Associations {
+				_associations = append(_associations, string(a))
+			}
+			values.Set("associations", strings.Join(_associations, ","))
+		}
+	}
+
+	company := company{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodGet,
+		Url:           service.url(fmt.Sprintf("%s/%s?%s", endpoint, config.CompanyId, values.Encode())),
+		ResponseModel: &company,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return getCompany(&company, config.CustomProperties)
+}
+
+func getCompany(company *company, customProperties *[]string) (*Company, *errortools.Error) {
+	company_ := Company{
+		Id:               company.Id,
+		CreatedAt:        company.CreatedAt,
+		UpdatedAt:        company.UpdatedAt,
+		Archived:         company.Archived,
+		Associations:     company.Associations,
+		CustomProperties: make(map[string]string),
+	}
+	if company.Properties != nil {
+		p := CompanyProperties{}
+		err := json.Unmarshal(company.Properties, &p)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+		company_.Properties = p
+	}
+
+	if customProperties != nil {
+		p1 := make(map[string]string)
+		err := json.Unmarshal(company.Properties, &p1)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+
+		for _, cp := range *customProperties {
+			value, ok := p1[cp]
+			if ok {
+				company_.CustomProperties[cp] = value
+			}
+		}
+	}
+
+	return &company_, nil
 }
