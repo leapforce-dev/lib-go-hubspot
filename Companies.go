@@ -465,3 +465,92 @@ func getCompany(company *company, customProperties *[]string) (*Company, *errort
 
 	return &company_, nil
 }
+
+type SearchCompanyConfig struct {
+	FilterGroups *[]FilterGroup `json:"filterGroups"`
+}
+
+type FilterGroup struct {
+	Filters *[]filter `json:"filters"`
+}
+
+func (fg *FilterGroup) AddPropertyFilter(operator string, property CompanyProperty, value string) {
+	if fg.Filters == nil {
+		fg.Filters = &[]filter{}
+	}
+
+	*fg.Filters = append(*fg.Filters, filter{
+		Operator:     operator,
+		PropertyName: string(property),
+		Value:        value,
+		isCustom:     false,
+	})
+}
+
+func (fg *FilterGroup) AddCustomPropertyFilter(operator string, propertyName string, value string) {
+	if fg.Filters == nil {
+		fg.Filters = &[]filter{}
+	}
+
+	*fg.Filters = append(*fg.Filters, filter{
+		Operator:     operator,
+		PropertyName: propertyName,
+		Value:        value,
+		isCustom:     true,
+	})
+}
+
+type filter struct {
+	Operator     string `json:"operator"`
+	PropertyName string `json:"propertyName,omitempty"`
+	Value        string `json:"value"`
+	isCustom     bool   `json:"-"`
+}
+
+// SearchCompany returns a specific company
+//
+func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, *errortools.Error) {
+	if config == nil {
+		return nil, errortools.ErrorMessage("Config is nil")
+	}
+
+	endpoint := "objects/companies/search"
+
+	companiesResponse := CompaniesResponse{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.url(endpoint),
+		BodyModel:     config,
+		ResponseModel: &companiesResponse,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	customProperties := []string{}
+	if config.FilterGroups != nil {
+		for _, filterGroup := range *config.FilterGroups {
+			for _, filter := range *filterGroup.Filters {
+				if filter.isCustom {
+					customProperties = append(customProperties, filter.PropertyName)
+				}
+			}
+		}
+	}
+
+	companies_ := []Company{}
+
+	for _, c := range companiesResponse.Results {
+		company_, e := getCompany(&c, &customProperties)
+		if e != nil {
+			return nil, e
+		}
+
+		companies_ = append(companies_, *company_)
+	}
+
+	return &companies_, nil
+}
