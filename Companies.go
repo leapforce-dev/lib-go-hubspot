@@ -39,31 +39,31 @@ type Company struct {
 }
 
 type CompanyProperties struct {
-	Name                    *string                   `json:"name"`
-	Phone                   *string                   `json:"phone"`
-	Email                   *string                   `json:"email"`
-	DomainName              *string                   `json:"domain"`
-	LifecycleStage          *string                   `json:"lifecyclestage"`
-	Industry                *string                   `json:"industry"`
-	AnnualRevenue           *go_types.Int64String     `json:"annualrevenue"`
-	Founded                 *string                   `json:"founded_year"`
-	AboutUs                 *string                   `json:"about_us"`
-	Street                  *string                   `json:"address"`
-	Street2                 *string                   `json:"address2"`
-	City                    *string                   `json:"city"`
-	State                   *string                   `json:"state"`
-	Zip                     *string                   `json:"zip"`
-	Country                 *string                   `json:"country"`
-	NumberOfPageViews       *go_types.Int64String     `json:"hs_analytics_num_page_views"`
-	LastContacted           *h_types.DateTimeMSString `json:"notes_last_contacted"`
-	NumberOfTimesContacted  *go_types.Int64String     `json:"num_contacted_notes"`
-	OriginalSourceType      *string                   `json:"hs_analytics_source"`
-	NextActivityDate        *h_types.DateTimeString   `json:"notes_next_activity_date"`
-	LinkedinCompanyPage     *string                   `json:"linkedin_company_page"`
-	FacebookCompanyPage     *string                   `json:"facebook_company_page"`
-	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events"`
-	WebsiteUrl              *string                   `json:"website"`
-	OwnerId                 *string                   `json:"hubspot_owner_id"`
+	Name                    *string                   `json:"name,omitempty"`
+	Phone                   *string                   `json:"phone,omitempty"`
+	Email                   *string                   `json:"email,omitempty"`
+	DomainName              *string                   `json:"domain,omitempty"`
+	LifecycleStage          *string                   `json:"lifecyclestage,omitempty"`
+	Industry                *string                   `json:"industry,omitempty"`
+	AnnualRevenue           *go_types.Int64String     `json:"annualrevenue,omitempty"`
+	Founded                 *string                   `json:"founded_year,omitempty"`
+	AboutUs                 *string                   `json:"about_us,omitempty"`
+	Street                  *string                   `json:"address,omitempty"`
+	Street2                 *string                   `json:"address2,omitempty"`
+	City                    *string                   `json:"city,omitempty"`
+	State                   *string                   `json:"state,omitempty"`
+	Zip                     *string                   `json:"zip,omitempty"`
+	Country                 *string                   `json:"country,omitempty"`
+	NumberOfPageViews       *go_types.Int64String     `json:"hs_analytics_num_page_views,omitempty"`
+	LastContacted           *h_types.DateTimeMSString `json:"notes_last_contacted,omitempty"`
+	NumberOfTimesContacted  *go_types.Int64String     `json:"num_contacted_notes,omitempty"`
+	OriginalSourceType      *string                   `json:"hs_analytics_source,omitempty"`
+	NextActivityDate        *h_types.DateTimeString   `json:"notes_next_activity_date,omitempty"`
+	LinkedinCompanyPage     *string                   `json:"linkedin_company_page,omitempty"`
+	FacebookCompanyPage     *string                   `json:"facebook_company_page,omitempty"`
+	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events,omitempty"`
+	WebsiteUrl              *string                   `json:"website,omitempty"`
+	OwnerId                 *string                   `json:"hubspot_owner_id,omitempty"`
 }
 
 type CompanyProperty string
@@ -342,15 +342,16 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 }
 
 type UpdateCompanyConfig struct {
-	CompanyId  string
-	Properties CompanyProperties
+	CompanyId        string
+	Properties       CompanyProperties
+	CustomProperties map[string]string
 }
 
 func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *errortools.Error) {
 	endpoint := "objects/companies"
 	company := Company{}
 
-	properties := struct {
+	body := struct {
 		CompanyProperties `json:"properties"`
 	}{
 		config.Properties,
@@ -359,8 +360,36 @@ func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *e
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
 		Url:           service.url(fmt.Sprintf("%s/%s", endpoint, config.CompanyId)),
-		BodyModel:     properties,
+		BodyModel:     body,
 		ResponseModel: &company,
+	}
+
+	if config.CustomProperties != nil {
+		if len(config.CustomProperties) > 0 {
+			// marshal
+			b, err := json.Marshal(config.Properties)
+			if err != nil {
+				return nil, errortools.ErrorMessage(err)
+			}
+			// unmarshal to map
+			m := make(map[string]string)
+			err = json.Unmarshal(b, &m)
+			if err != nil {
+				return nil, errortools.ErrorMessage(err)
+			}
+			// append custom properties to map
+			for key, value := range config.CustomProperties {
+				if _, ok := m[key]; !ok {
+					m[key] = value
+				}
+			}
+
+			requestConfig.BodyModel = struct {
+				Properties map[string]string `json:"properties"`
+			}{
+				m,
+			}
+		}
 	}
 
 	_, _, e := service.httpRequest(&requestConfig)

@@ -3,7 +3,6 @@ package hubspot
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -17,12 +16,12 @@ const (
 // type
 //
 type Service struct {
-	apiKey      string
+	bearerToken string
 	httpService *go_http.Service
 }
 
 type ServiceConfig struct {
-	ApiKey string
+	BearerToken string
 }
 
 func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
@@ -30,8 +29,8 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 		return nil, errortools.ErrorMessage("ServiceConfig must not be a nil pointer")
 	}
 
-	if config.ApiKey == "" {
-		return nil, errortools.ErrorMessage("ApiKey not provided")
+	if config.BearerToken == "" {
+		return nil, errortools.ErrorMessage("BearerToken not provided")
 	}
 
 	httpService, e := go_http.NewService(&go_http.ServiceConfig{})
@@ -40,21 +39,16 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 	}
 
 	return &Service{
-		apiKey:      config.ApiKey,
+		bearerToken: config.BearerToken,
 		httpService: httpService,
 	}, nil
 }
 
 func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	// add Api key
-	_url, err := url.Parse(requestConfig.Url)
-	if err != nil {
-		return nil, nil, errortools.ErrorMessage(err)
-	}
-	query := _url.Query()
-	query.Set("hapikey", service.apiKey)
-
-	(*requestConfig).Url = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
+	// add authentication header
+	header := http.Header{}
+	header.Set("Authorization", fmt.Sprintf("Bearer %s", service.bearerToken))
+	(*requestConfig).NonDefaultHeaders = &header
 
 	// add error model
 	errorResponse := ErrorResponse{}
@@ -77,7 +71,7 @@ func (service *Service) ApiName() string {
 }
 
 func (service *Service) ApiKey() string {
-	return service.apiKey
+	return service.bearerToken
 }
 
 func (service *Service) ApiCallCount() int64 {
