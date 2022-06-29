@@ -137,8 +137,9 @@ github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072/go.mod 
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/gavv/httpexpect v2.0.0+incompatible/go.mod h1:x+9tiU1YnrOvnB725RkpoLv1M62hOWzwo5OXotisrKc=
-github.com/getsentry/sentry-go v0.9.0 h1:KIfpY/D9hX3gWAEd3d8z6ImuHNWtqEsjlpdF8zXFsHM=
 github.com/getsentry/sentry-go v0.9.0/go.mod h1:kELm/9iCblqUYh+ZRML7PNdCvEuw24wBvJPYyi86cws=
+github.com/getsentry/sentry-go v0.13.0 h1:20dgTiUSfxRB/EhMPtxcL9ZEbM1ZdR+W/7f7NWD+xWo=
+github.com/getsentry/sentry-go v0.13.0/go.mod h1:EOsfu5ZdvKPfeHYV6pTVQnsjfp30+XA7//UooKNumH0=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3/go.mod h1:VJ0WA2NBN22VlZ2dKZQPAPnyWw5XTlK1KymzLKsr59s=
 github.com/gin-gonic/gin v1.4.0/go.mod h1:OW2EZn3DO8Ln9oIKOvM++LBO+5UPHJJDH72/q/3rZdM=
@@ -284,8 +285,9 @@ github.com/leapforce-libraries/go_errortools v0.0.0-20210305222651-2350bce9f587/
 github.com/leapforce-libraries/go_errortools v0.0.0-20210421105612-afc8a27266b6/go.mod h1:qw2+jRSmAUBmnLgN9kgiadj31C2j7j4f9jSxuydSBHg=
 github.com/leapforce-libraries/go_errortools v0.0.0-20210628193911-6d614fa4274a/go.mod h1:qw2+jRSmAUBmnLgN9kgiadj31C2j7j4f9jSxuydSBHg=
 github.com/leapforce-libraries/go_errortools v0.0.0-20210922200432-64334a07d517/go.mod h1:qw2+jRSmAUBmnLgN9kgiadj31C2j7j4f9jSxuydSBHg=
-github.com/leapforce-libraries/go_errortools v0.0.0-20211119145736-7b9b61c20618 h1:6M6f9zs4w4mEhs66mwFA0uP9TwqfwVUPeMO9KjGc3C8=
 github.com/leapforce-libraries/go_errortools v0.0.0-20211119145736-7b9b61c20618/go.mod h1:qw2+jRSmAUBmnLgN9kgiadj31C2j7j4f9jSxuydSBHg=
+github.com/leapforce-libraries/go_errortools v0.0.0-20220629113324-7501886bb3c6 h1:rhkBt/tAVoVKY40DmcyOryT2cxRsDrszF5WsxVW7jW8=
+github.com/leapforce-libraries/go_errortools v0.0.0-20220629113324-7501886bb3c6/go.mod h1:HBMMleEMAGvyeu+3YWit5kSmpff61EWiMV1fp99lgK0=
 github.com/leapforce-libraries/go_google v0.0.0-20210414170124-9343570001e8/go.mod h1:NDa8PxwTlttt1V1YmajjOndy+XQMKoWCqJha/27dgkg=
 github.com/leapforce-libraries/go_google v0.0.0-20210423214553-0375c4164934/go.mod h1:TgN7RlerriKqnb41qXgs8wT6T+v0F8s1Hj8ikbusnX0=
 github.com/leapforce-libraries/go_google v0.0.0-20210722093139-073b0a9a43b0/go.mod h1:gTIrWbTDxpyiAFWcVmY6px2U2j0pnorGdwBIu2Dsueo=

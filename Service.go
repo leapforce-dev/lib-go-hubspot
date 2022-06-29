@@ -3,6 +3,7 @@ package hubspot
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -16,8 +17,10 @@ const (
 // type
 //
 type Service struct {
-	bearerToken string
-	httpService *go_http.Service
+	apiKey        string
+	bearerToken   string
+	httpService   *go_http.Service
+	errorResponse *ErrorResponse
 }
 
 type ServiceConfig struct {
@@ -43,20 +46,49 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 		httpService: httpService,
 	}, nil
 }
+func NewServiceWithApiKey(apiKey string) (*Service, *errortools.Error) {
+	if apiKey == "" {
+		return nil, errortools.ErrorMessage("apiKey not provided")
+	}
+
+	httpService, e := go_http.NewService(&go_http.ServiceConfig{})
+	if e != nil {
+		return nil, e
+	}
+
+	return &Service{
+		apiKey:      apiKey,
+		httpService: httpService,
+	}, nil
+}
 
 func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	// add authentication header
-	header := http.Header{}
-	header.Set("Authorization", fmt.Sprintf("Bearer %s", service.bearerToken))
-	(*requestConfig).NonDefaultHeaders = &header
+	if service.bearerToken != "" {
+		// add authentication header
+		header := http.Header{}
+		header.Set("Authorization", fmt.Sprintf("Bearer %s", service.bearerToken))
+		(*requestConfig).NonDefaultHeaders = &header
+	}
+
+	if service.apiKey != "" {
+		// add Api key
+		_url, err := url.Parse(requestConfig.Url)
+		if err != nil {
+			return nil, nil, errortools.ErrorMessage(err)
+		}
+		query := _url.Query()
+		query.Set("hapikey", service.apiKey)
+
+		(*requestConfig).Url = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
+	}
 
 	// add error model
-	errorResponse := ErrorResponse{}
-	(*requestConfig).ErrorModel = &errorResponse
+	service.errorResponse = &ErrorResponse{}
+	(*requestConfig).ErrorModel = &service.errorResponse
 
 	request, response, e := service.httpService.HttpRequest(requestConfig)
-	if errorResponse.Message != "" {
-		e.SetMessage(errorResponse.Message)
+	if service.errorResponse.Message != "" {
+		e.SetMessage(service.errorResponse.Message)
 	}
 
 	return request, response, e
@@ -80,4 +112,8 @@ func (service *Service) ApiCallCount() int64 {
 
 func (service *Service) ApiReset() {
 	service.httpService.ResetRequestCount()
+}
+
+func (service *Service) ErrorResponse() *ErrorResponse {
+	return service.errorResponse
 }
