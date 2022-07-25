@@ -1,6 +1,7 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,19 +14,28 @@ import (
 )
 
 type DealsResponse struct {
-	Results []Deal  `json:"results"`
+	Results []deal  `json:"results"`
 	Paging  *Paging `json:"paging"`
 }
 
 // Deal stores Deal from Service
 //
-type Deal struct {
+type deal struct {
 	Id           string                     `json:"id"`
-	Properties   DealProperties             `json:"properties"`
+	Properties   json.RawMessage            `json:"properties"`
 	CreatedAt    h_types.DateTimeString     `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeString     `json:"updatedAt"`
 	Archived     bool                       `json:"archived"`
 	Associations map[string]AssociationsSet `json:"associations"`
+}
+type Deal struct {
+	Id               string
+	Properties       DealProperties
+	CustomProperties map[string]string
+	CreatedAt        h_types.DateTimeString
+	UpdatedAt        h_types.DateTimeString
+	Archived         bool
+	Associations     map[string]AssociationsSet
 }
 
 type DealProperties struct {
@@ -175,11 +185,12 @@ const (
 )
 
 type GetDealsConfig struct {
-	Limit        *uint
-	After        *string
-	Properties   *[]DealProperty
-	Associations *[]ObjectType
-	Archived     *bool
+	Limit            *uint
+	After            *string
+	Properties       *[]DealProperty
+	CustomProperties *[]string
+	Associations     *[]ObjectType
+	Archived         *bool
 }
 
 // GetDeals returns all deals
@@ -192,14 +203,21 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 		if config.Limit != nil {
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
+		_properties := []string{}
 		if config.Properties != nil {
 			if len(*config.Properties) > 0 {
-				_properties := []string{}
 				for _, p := range *config.Properties {
 					_properties = append(_properties, string(p))
 				}
-				values.Set("properties", strings.Join(_properties, ","))
 			}
+		}
+		if config.CustomProperties != nil {
+			if len(*config.CustomProperties) > 0 {
+				_properties = append(_properties, *config.CustomProperties...)
+			}
+		}
+		if len(_properties) > 0 {
+			values.Set("properties", strings.Join(_properties, ","))
 		}
 		if config.Associations != nil {
 			if len(*config.Associations) > 0 {
@@ -240,7 +258,13 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 			return nil, e
 		}
 
-		deals = append(deals, dealsResponse.Results...)
+		for _, d := range dealsResponse.Results {
+			deal_, e := getDeal(&d, config.CustomProperties)
+			if e != nil {
+				return nil, e
+			}
+			deals = append(deals, *deal_)
+		}
 
 		if config.After != nil { // explicit after parameter requested
 			break
@@ -258,4 +282,40 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 	}
 
 	return &deals, nil
+}
+
+func getDeal(deal *deal, customProperties *[]string) (*Deal, *errortools.Error) {
+	deal_ := Deal{
+		Id:               deal.Id,
+		CreatedAt:        deal.CreatedAt,
+		UpdatedAt:        deal.UpdatedAt,
+		Archived:         deal.Archived,
+		Associations:     deal.Associations,
+		CustomProperties: make(map[string]string),
+	}
+	if deal.Properties != nil {
+		p := DealProperties{}
+		err := json.Unmarshal(deal.Properties, &p)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+		deal_.Properties = p
+	}
+
+	if customProperties != nil {
+		p1 := make(map[string]string)
+		err := json.Unmarshal(deal.Properties, &p1)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+
+		for _, cp := range *customProperties {
+			value, ok := p1[cp]
+			if ok {
+				deal_.CustomProperties[cp] = value
+			}
+		}
+	}
+
+	return &deal_, nil
 }
