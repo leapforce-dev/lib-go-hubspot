@@ -11,7 +11,7 @@ import (
 
 const (
 	apiName string = "Hubspot"
-	apiUrl  string = "https://api.hubapi.com/crm/v3"
+	apiUrl  string = "https://api.hubapi.com/crm"
 )
 
 // type
@@ -95,7 +95,11 @@ func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http
 }
 
 func (service *Service) url(path string) string {
-	return fmt.Sprintf("%s/%s", apiUrl, path)
+	return fmt.Sprintf("%s/v3/%s", apiUrl, path)
+}
+
+func (service *Service) urlV4(path string) string {
+	return fmt.Sprintf("%s/v4/%s", apiUrl, path)
 }
 
 func (service *Service) ApiName() string {
