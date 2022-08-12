@@ -496,21 +496,26 @@ func getCompany(company *company, customProperties *[]string) (*Company, *errort
 }
 
 type SearchCompanyConfig struct {
-	FilterGroups *[]FilterGroup `json:"filterGroups"`
+	Limit        *uint          `json:"limit,omitempty"`
+	After        *string        `json:"after,omitempty"`
+	FilterGroups *[]FilterGroup `json:"filterGroups,omitempty"`
+	Sorts        *[]string      `json:"sorts,omitempty"`
+	Query        *string        `json:"query,omitempty"`
+	Properties   *[]string      `json:"properties,omitempty"`
 }
 
 type FilterGroup struct {
 	Filters *[]filter `json:"filters"`
 }
 
-func (fg *FilterGroup) AddPropertyFilter(operator string, property CompanyProperty, value string) {
+func (fg *FilterGroup) AddPropertyFilter(operator string, property string, value string) {
 	if fg.Filters == nil {
 		fg.Filters = &[]filter{}
 	}
 
 	*fg.Filters = append(*fg.Filters, filter{
 		Operator:     operator,
-		PropertyName: string(property),
+		PropertyName: property,
 		Value:        value,
 		isCustom:     false,
 	})
@@ -570,16 +575,46 @@ func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, 
 		}
 	}
 
-	companies_ := []Company{}
+	companies := []Company{}
 
-	for _, c := range companiesResponse.Results {
-		company_, e := getCompany(&c, &customProperties)
+	for {
+		companiesResponse := CompaniesResponse{}
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.url("objects/companies/search"),
+			BodyModel:     config,
+			ResponseModel: &companiesResponse,
+		}
+
+		_, _, e := service.httpRequest(&requestConfig)
 		if e != nil {
 			return nil, e
 		}
 
-		companies_ = append(companies_, *company_)
+		for _, c := range companiesResponse.Results {
+			company_, e := getCompany(&c, config.Properties)
+			if e != nil {
+				return nil, e
+			}
+
+			companies = append(companies, *company_)
+		}
+
+		if config.After != nil { // explicit after parameter requested
+			break
+		}
+
+		if companiesResponse.Paging == nil {
+			break
+		}
+
+		if companiesResponse.Paging.Next.After == "" {
+			break
+		}
+
+		config.After = &companiesResponse.Paging.Next.After
 	}
 
-	return &companies_, nil
+	return &companies, nil
 }
