@@ -575,6 +575,8 @@ func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, 
 		}
 	}
 
+	after := config.After
+
 	companies := []Company{}
 
 	for {
@@ -601,7 +603,7 @@ func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, 
 			companies = append(companies, *company_)
 		}
 
-		if config.After != nil { // explicit after parameter requested
+		if after != nil { // explicit after parameter requested
 			break
 		}
 
