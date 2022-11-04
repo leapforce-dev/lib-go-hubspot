@@ -464,24 +464,43 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 }
 
 type UpdateContactConfig struct {
-	ContactId  string
-	Properties ContactProperties
+	ContactId        string
+	Properties       ContactProperties
+	CustomProperties map[string]json.RawMessage
 }
 
 func (service *Service) UpdateContact(config *UpdateContactConfig) (*Contact, *errortools.Error) {
 	endpoint := "objects/contacts"
 	contact := Contact{}
 
-	properties := struct {
-		ContactProperties `json:"properties"`
+	var properties = make(map[string]json.RawMessage)
+
+	b, err := json.Marshal(config.Properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	err = json.Unmarshal(b, &properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if config.CustomProperties != nil {
+		for key, value := range config.CustomProperties {
+			properties[key] = value
+		}
+	}
+
+	var properties_ = struct {
+		Properties map[string]json.RawMessage `json:"properties"`
 	}{
-		config.Properties,
+		properties,
 	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
 		Url:           service.url(fmt.Sprintf("%s/%s", endpoint, config.ContactId)),
-		BodyModel:     properties,
+		BodyModel:     properties_,
 		ResponseModel: &contact,
 	}
 
