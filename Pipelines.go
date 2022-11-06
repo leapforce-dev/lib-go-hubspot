@@ -68,7 +68,7 @@ func (service *Service) GetPipelines(config *GetPipelinesConfig) (*[]Pipeline, *
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodGet,
-		Url:           service.url(fmt.Sprintf("%s/%s?%s", endpoint, string(config.ObjectType), values.Encode())),
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s?%s", endpoint, string(config.ObjectType), values.Encode())),
 		ResponseModel: &pipelinesResponse,
 	}
 

@@ -2,25 +2,41 @@ package hubspot
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
-
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	oauth2 "github.com/leapforce-libraries/go_oauth2"
+	"github.com/leapforce-libraries/go_oauth2/tokensource"
+	"net/http"
+	"net/url"
 )
 
 const (
-	apiName string = "Hubspot"
-	apiUrl  string = "https://api.hubapi.com/crm"
+	apiName            string = "Hubspot"
+	apiUrlCrm          string = "https://api.hubapi.com/crm"
+	apiUrlAccountInfo  string = "https://api.hubapi.com/account-info"
+	defaultRedirectUrl string = "http://localhost:8080/oauth/redirect"
+	authUrl            string = "https://app-eu1.hubspot.com/oauth/authorize"
+	tokenUrl           string = "https://api.hubapi.com/oauth/v1/token"
+	tokenHttpMethod    string = http.MethodPost
 )
 
-// type
-//
+type authorizationMode string
+
+const (
+	authorizationModeOAuth2      authorizationMode = "oauth2"
+	authorizationModeApiKey      authorizationMode = "apikey"
+	authorizationModeAccessToken authorizationMode = "accesstoken"
+)
+
 type Service struct {
-	apiKey        string
-	bearerToken   string
-	httpService   *go_http.Service
-	errorResponse *ErrorResponse
+	authorizationMode authorizationMode
+	clientId          string
+	apiKey            string
+	accessToken       string
+	httpService       *go_http.Service
+	oAuth2Service     *oauth2.Service
+	redirectUrl       *string
+	errorResponse     *ErrorResponse
 }
 
 type ServiceConfig struct {
@@ -42,10 +58,12 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 	}
 
 	return &Service{
-		bearerToken: config.BearerToken,
-		httpService: httpService,
+		authorizationMode: authorizationModeAccessToken,
+		accessToken:       config.BearerToken,
+		httpService:       httpService,
 	}, nil
 }
+
 func NewServiceWithApiKey(apiKey string) (*Service, *errortools.Error) {
 	if apiKey == "" {
 		return nil, errortools.ErrorMessage("apiKey not provided")
@@ -57,49 +75,121 @@ func NewServiceWithApiKey(apiKey string) (*Service, *errortools.Error) {
 	}
 
 	return &Service{
-		apiKey:      apiKey,
-		httpService: httpService,
+		authorizationMode: authorizationModeApiKey,
+		apiKey:            apiKey,
+		httpService:       httpService,
+	}, nil
+}
+
+type ServiceWithOAuth2Config struct {
+	ClientId     string
+	ClientSecret string
+	TokenSource  tokensource.TokenSource
+	RedirectUrl  *string
+}
+
+func NewServiceWithOAuth2(cfg *ServiceWithOAuth2Config) (*Service, *errortools.Error) {
+	if cfg == nil {
+		return nil, errortools.ErrorMessage("ServiceConfig must not be a nil pointer")
+	}
+
+	if cfg.ClientId == "" {
+		return nil, errortools.ErrorMessage("ClientId not provided")
+	}
+
+	redirectUrl := defaultRedirectUrl
+	if cfg.RedirectUrl != nil {
+		redirectUrl = *cfg.RedirectUrl
+	}
+
+	oauth2ServiceConfig := oauth2.ServiceConfig{
+		ClientId:        cfg.ClientId,
+		ClientSecret:    cfg.ClientSecret,
+		RedirectUrl:     redirectUrl,
+		AuthUrl:         authUrl,
+		TokenUrl:        tokenUrl,
+		TokenHttpMethod: tokenHttpMethod,
+		TokenSource:     cfg.TokenSource,
+	}
+	oauth2Service, e := oauth2.NewService(&oauth2ServiceConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &Service{
+		authorizationMode: authorizationModeOAuth2,
+		clientId:          cfg.ClientId,
+		oAuth2Service:     oauth2Service,
+		redirectUrl:       cfg.RedirectUrl,
 	}, nil
 }
 
 func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
-	if service.bearerToken != "" {
-		// add authentication header
-		header := http.Header{}
-		header.Set("Authorization", fmt.Sprintf("Bearer %s", service.bearerToken))
-		(*requestConfig).NonDefaultHeaders = &header
-	}
-
-	if service.apiKey != "" {
-		// add Api key
-		_url, err := url.Parse(requestConfig.Url)
-		if err != nil {
-			return nil, nil, errortools.ErrorMessage(err)
-		}
-		query := _url.Query()
-		query.Set("hapikey", service.apiKey)
-
-		(*requestConfig).Url = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
-	}
+	var request *http.Request
+	var response *http.Response
+	var e *errortools.Error
 
 	// add error model
 	service.errorResponse = &ErrorResponse{}
-	(*requestConfig).ErrorModel = &service.errorResponse
+	requestConfig.ErrorModel = service.errorResponse
 
-	request, response, e := service.httpService.HttpRequest(requestConfig)
-	if service.errorResponse.Message != "" {
-		e.SetMessage(service.errorResponse.Message)
+	if service.authorizationMode == authorizationModeOAuth2 {
+		request, response, e = service.oAuth2Service.HttpRequest(requestConfig)
+	} else {
+		if service.authorizationMode == authorizationModeAccessToken {
+			// add authentication header
+			header := http.Header{}
+			header.Set("Authorization", fmt.Sprintf("Bearer %s", service.accessToken))
+			(*requestConfig).NonDefaultHeaders = &header
+		} else if service.authorizationMode == authorizationModeApiKey {
+			// add Api key
+			_url, err := url.Parse(requestConfig.Url)
+			if err != nil {
+				return nil, nil, errortools.ErrorMessage(err)
+			}
+			query := _url.Query()
+			query.Set("hapikey", service.apiKey)
+
+			(*requestConfig).Url = fmt.Sprintf("%s://%s%s?%s", _url.Scheme, _url.Host, _url.Path, query.Encode())
+		}
+
+		request, response, e = service.httpService.HttpRequest(requestConfig)
 	}
 
-	return request, response, e
+	if e != nil {
+		if service.errorResponse.Message != "" {
+			e.SetMessage(service.errorResponse.Message)
+		}
+	}
+
+	if e != nil {
+		return request, response, e
+	}
+
+	return request, response, nil
 }
 
-func (service *Service) url(path string) string {
-	return fmt.Sprintf("%s/v3/%s", apiUrl, path)
+func (service *Service) AuthorizeUrl(scope string) string {
+	if service.redirectUrl == nil {
+		return ""
+	}
+	return fmt.Sprintf("https://app-eu1.hubspot.com/oauth/authorize?client_id=%s&redirect_uri=%s&scope=%s", service.clientId, *service.redirectUrl, scope)
+}
+
+func (service *Service) GetTokenFromCode(r *http.Request) *errortools.Error {
+	return service.oAuth2Service.GetTokenFromCode(r, nil)
+}
+
+func (service *Service) urlCrm(path string) string {
+	return fmt.Sprintf("%s/v3/%s", apiUrlCrm, path)
+}
+
+func (service *Service) urlAccountInfo(path string) string {
+	return fmt.Sprintf("%s/v3/%s", apiUrlAccountInfo, path)
 }
 
 func (service *Service) urlV4(path string) string {
-	return fmt.Sprintf("%s/v4/%s", apiUrl, path)
+	return fmt.Sprintf("%s/v4/%s", apiUrlCrm, path)
 }
 
 func (service *Service) ApiName() string {
@@ -107,7 +197,7 @@ func (service *Service) ApiName() string {
 }
 
 func (service *Service) ApiKey() string {
-	return service.bearerToken
+	return service.accessToken
 }
 
 func (service *Service) ApiCallCount() int64 {

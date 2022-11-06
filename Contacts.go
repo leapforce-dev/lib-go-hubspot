@@ -398,7 +398,7 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodGet,
-			Url:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+			Url:           service.urlCrm(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &contactsResponse,
 		}
 
@@ -499,7 +499,7 @@ func (service *Service) UpdateContact(config *UpdateContactConfig) (*Contact, *e
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.url(fmt.Sprintf("%s/%s", endpoint, config.ContactId)),
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ContactId)),
 		BodyModel:     properties_,
 		ResponseModel: &contact,
 	}

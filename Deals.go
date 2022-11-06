@@ -249,7 +249,7 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodGet,
-			Url:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+			Url:           service.urlCrm(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &dealsResponse,
 		}
 

@@ -38,7 +38,7 @@ func (service *Service) GetProperties(object string) (*[]Property, *errortools.E
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodGet,
-		Url:           service.url(fmt.Sprintf("%s/%s", endpoint, object)),
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, object)),
 		ResponseModel: &propertiesResponse,
 	}
 

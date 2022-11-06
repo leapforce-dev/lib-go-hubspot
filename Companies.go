@@ -272,7 +272,7 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodGet,
-			Url:           service.url(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+			Url:           service.urlCrm(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
 			ResponseModel: &companiesResponse,
 		}
 
@@ -359,7 +359,7 @@ func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *e
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.url(fmt.Sprintf("%s/%s", endpoint, config.CompanyId)),
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.CompanyId)),
 		BodyModel:     body,
 		ResponseModel: &company,
 	}
@@ -447,7 +447,7 @@ func (service *Service) GetCompany(config *GetCompanyConfig) (*Company, *errorto
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodGet,
-		Url:           service.url(fmt.Sprintf("%s/%s?%s", endpoint, config.CompanyId, values.Encode())),
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s?%s", endpoint, config.CompanyId, values.Encode())),
 		ResponseModel: &company,
 	}
 
@@ -554,7 +554,7 @@ func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, 
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPost,
-		Url:           service.url(endpoint),
+		Url:           service.urlCrm(endpoint),
 		BodyModel:     config,
 		ResponseModel: &companiesResponse,
 	}
@@ -584,7 +584,7 @@ func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, 
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodPost,
-			Url:           service.url("objects/companies/search"),
+			Url:           service.urlCrm("objects/companies/search"),
 			BodyModel:     config,
 			ResponseModel: &companiesResponse,
 		}
