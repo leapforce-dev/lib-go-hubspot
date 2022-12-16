@@ -408,7 +408,11 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 		}
 
 		for _, c := range contactsResponse.Results {
-			contact_ := Contact{
+			contact_, e := getContact(&c, config.CustomProperties)
+			if e != nil {
+				return nil, e
+			}
+			/*contact_ := Contact{
 				Id:               c.Id,
 				CreatedAt:        c.CreatedAt,
 				UpdatedAt:        c.UpdatedAt,
@@ -440,9 +444,9 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 						contact_.CustomProperties[cp] = value
 					}
 				}
-			}
+			}*/
 
-			contacts = append(contacts, contact_)
+			contacts = append(contacts, *contact_)
 		}
 
 		if config.After != nil { // explicit after parameter requested
@@ -510,4 +514,99 @@ func (service *Service) UpdateContact(config *UpdateContactConfig) (*Contact, *e
 	}
 
 	return &contact, nil
+}
+
+type GetContactConfig struct {
+	ContactId        string
+	Properties       *[]ContactProperty
+	CustomProperties *[]string
+	Associations     *[]ObjectType
+}
+
+// GetContact returns a specific contact
+//
+func (service *Service) GetContact(config *GetContactConfig) (*Contact, *errortools.Error) {
+	values := url.Values{}
+	endpoint := "objects/contacts"
+
+	if config == nil {
+		return nil, errortools.ErrorMessage("config is nil")
+	}
+
+	_properties := []string{}
+	if config.Properties != nil {
+		if len(*config.Properties) > 0 {
+			for _, p := range *config.Properties {
+				_properties = append(_properties, string(p))
+			}
+		}
+	}
+	if config.CustomProperties != nil {
+		if len(*config.CustomProperties) > 0 {
+			_properties = append(_properties, *config.CustomProperties...)
+		}
+	}
+	if len(_properties) > 0 {
+		values.Set("properties", strings.Join(_properties, ","))
+	}
+	if config.Associations != nil {
+		if len(*config.Associations) > 0 {
+			_associations := []string{}
+			for _, a := range *config.Associations {
+				_associations = append(_associations, string(a))
+			}
+			values.Set("associations", strings.Join(_associations, ","))
+		}
+	}
+
+	contact := contact{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodGet,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s?%s", endpoint, config.ContactId, values.Encode())),
+		ResponseModel: &contact,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return getContact(&contact, config.CustomProperties)
+}
+
+func getContact(contact *contact, customProperties *[]string) (*Contact, *errortools.Error) {
+	contact_ := Contact{
+		Id:               contact.Id,
+		CreatedAt:        contact.CreatedAt,
+		UpdatedAt:        contact.UpdatedAt,
+		Archived:         contact.Archived,
+		Associations:     contact.Associations,
+		CustomProperties: make(map[string]string),
+	}
+	if contact.Properties != nil {
+		p := ContactProperties{}
+		err := json.Unmarshal(contact.Properties, &p)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+		contact_.Properties = p
+	}
+
+	if customProperties != nil {
+		p1 := make(map[string]string)
+		err := json.Unmarshal(contact.Properties, &p1)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+
+		for _, cp := range *customProperties {
+			value, ok := p1[cp]
+			if ok {
+				contact_.CustomProperties[cp] = value
+			}
+		}
+	}
+
+	return &contact_, nil
 }
