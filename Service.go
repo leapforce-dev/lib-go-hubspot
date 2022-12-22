@@ -12,6 +12,8 @@ import (
 
 const (
 	apiName            string = "Hubspot"
+	apiUrlEngagements  string = "https://api.hubapi.com/engagements"
+	apiUrlFiles        string = "https://api.hubapi.com/files"
 	apiUrlCrm          string = "https://api.hubapi.com/crm"
 	apiUrlAccountInfo  string = "https://api.hubapi.com/account-info"
 	defaultRedirectUrl string = "http://localhost:8080/oauth/redirect"
@@ -178,6 +180,14 @@ func (service *Service) AuthorizeUrl(scope string) string {
 
 func (service *Service) GetTokenFromCode(r *http.Request) *errortools.Error {
 	return service.oAuth2Service.GetTokenFromCode(r, nil)
+}
+
+func (service *Service) urlEngagements(path string) string {
+	return fmt.Sprintf("%s/v1/%s", apiUrlEngagements, path)
+}
+
+func (service *Service) urlFiles(path string) string {
+	return fmt.Sprintf("%s/v3/%s", apiUrlFiles, path)
 }
 
 func (service *Service) urlCrm(path string) string {
