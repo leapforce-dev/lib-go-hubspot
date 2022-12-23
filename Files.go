@@ -136,5 +136,16 @@ func (service *Service) UploadFile(config *UploadFileConfig) (*File, *errortools
 		return nil, errortools.ErrorMessage(err)
 	}
 
+	if file.Id == "" {
+		err = json.Unmarshal(br, &service.errorResponse)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+
+		if service.errorResponse.Status == "error" {
+			return nil, errortools.ErrorMessagef("error: %s", service.errorResponse.Message)
+		}
+	}
+
 	return &file, nil
 }
