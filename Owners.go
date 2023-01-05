@@ -46,6 +46,8 @@ func (service *Service) GetOwners(config *GetOwnersConfig) (*[]Owner, *errortool
 	values := url.Values{}
 	endpoint := "owners"
 
+	after := ""
+
 	if config != nil {
 		if config.Limit != nil {
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
@@ -53,11 +55,9 @@ func (service *Service) GetOwners(config *GetOwnersConfig) (*[]Owner, *errortool
 		if config.Email != nil {
 			values.Set("email", *config.Email)
 		}
-	}
-
-	after := ""
-	if config.After != nil {
-		after = *config.After
+		if config.After != nil {
+			after = *config.After
+		}
 	}
 
 	owners := []Owner{}
@@ -82,8 +82,10 @@ func (service *Service) GetOwners(config *GetOwnersConfig) (*[]Owner, *errortool
 
 		owners = append(owners, ownersResponse.Results...)
 
-		if config.After != nil { // explicit after parameter requested
-			break
+		if config != nil {
+			if config.After != nil { // explicit after parameter requested
+				break
+			}
 		}
 
 		if ownersResponse.Paging == nil {

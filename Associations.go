@@ -38,6 +38,11 @@ type AssociationType struct {
 	Label    string `json:"label"`
 }
 
+type AssociationTypeV4 struct {
+	AssociationCategory string `json:"associationCategory"`
+	AssociationTypeId   int64  `json:"associationTypeId"`
+}
+
 type BatchGetAssociationsConfig struct {
 	FromObjectType ObjectType
 	ToObjectType   ObjectType
@@ -96,4 +101,44 @@ func (service *Service) BatchGetAssociations(config *BatchGetAssociationsConfig)
 	}
 
 	return &associationsV4Set, nil
+}
+
+type CreateAssociationConfig struct {
+	FromObjectType   ObjectType
+	FromObjectId     string
+	ToObjectType     ObjectType
+	ToObjectId       string
+	AssociationTypes []AssociationTypeV4
+}
+
+type CreateAssociationResponse struct {
+	FromObjectTypeId ObjectType `json:"fromObjectTypeId"`
+	FromObjectId     int64      `json:"fromObjectId"`
+	ToObjectTypeId   ObjectType `json:"toObjectTypeId"`
+	ToObjectId       int64      `json:"toObjectId"`
+	Labels           []string   `json:"labels"`
+}
+
+func (service *Service) CreateAssociation(config *CreateAssociationConfig) (*CreateAssociationResponse, *errortools.Error) {
+	if config == nil {
+		return nil, nil
+	}
+
+	endpoint := fmt.Sprintf("objects/%s/%s/associations/%s/%s", config.FromObjectType, config.FromObjectId, config.ToObjectType, config.ToObjectId)
+
+	var createAssociationResponse CreateAssociationResponse
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPut,
+		Url:           service.urlV4(endpoint),
+		BodyModel:     config.AssociationTypes,
+		ResponseModel: &createAssociationResponse,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &createAssociationResponse, nil
 }

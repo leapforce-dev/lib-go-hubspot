@@ -61,6 +61,7 @@ type CompanyProperties struct {
 	NextActivityDate        *h_types.DateTimeString   `json:"notes_next_activity_date,omitempty"`
 	LinkedinCompanyPage     *string                   `json:"linkedin_company_page,omitempty"`
 	FacebookCompanyPage     *string                   `json:"facebook_company_page,omitempty"`
+	TwitterHandle           *string                   `json:"twitterhandle,omitempty"`
 	NumberOfFormSubmissions *go_types.Int64String     `json:"num_conversion_events,omitempty"`
 	WebsiteUrl              *string                   `json:"website,omitempty"`
 	OwnerId                 *string                   `json:"hubspot_owner_id,omitempty"`
@@ -341,6 +342,71 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 	return &companies, nil
 }
 
+type CreateCompanyConfig struct {
+	Properties       CompanyProperties
+	CustomProperties map[string]string
+}
+
+func (service *Service) CreateCompany(config *CreateCompanyConfig) (*Company, *errortools.Error) {
+	endpoint := "objects/companies"
+	company := Company{}
+
+	body, e := propertiesBody(config.Properties, config.CustomProperties)
+	if e != nil {
+		return nil, e
+	}
+
+	properties := struct {
+		Properties map[string]string `json:"properties"`
+	}{
+		body,
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.urlCrm(endpoint),
+		BodyModel:     properties,
+		ResponseModel: &company,
+	}
+
+	_, _, e = service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &company, nil
+}
+
+func propertiesBody(properties CompanyProperties, customProperties map[string]string) (map[string]string, *errortools.Error) {
+	// marshal
+	b, err := json.Marshal(properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+	// unmarshal to map
+	m := make(map[string]string)
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if customProperties == nil {
+		return m, nil
+	}
+	if len(customProperties) == 0 {
+		return m, nil
+	}
+
+	// append custom properties to map
+	for key, value := range customProperties {
+		if _, ok := m[key]; !ok {
+			m[key] = value
+		}
+	}
+
+	return m, nil
+}
+
 type UpdateCompanyConfig struct {
 	CompanyId        string
 	Properties       CompanyProperties
@@ -351,48 +417,25 @@ func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *e
 	endpoint := "objects/companies"
 	company := Company{}
 
-	body := struct {
-		CompanyProperties `json:"properties"`
+	body, e := propertiesBody(config.Properties, config.CustomProperties)
+	if e != nil {
+		return nil, e
+	}
+
+	properties := struct {
+		Properties map[string]string `json:"properties"`
 	}{
-		config.Properties,
+		body,
 	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
 		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.CompanyId)),
-		BodyModel:     body,
+		BodyModel:     properties,
 		ResponseModel: &company,
 	}
 
-	if config.CustomProperties != nil {
-		if len(config.CustomProperties) > 0 {
-			// marshal
-			b, err := json.Marshal(config.Properties)
-			if err != nil {
-				return nil, errortools.ErrorMessage(err)
-			}
-			// unmarshal to map
-			m := make(map[string]string)
-			err = json.Unmarshal(b, &m)
-			if err != nil {
-				return nil, errortools.ErrorMessage(err)
-			}
-			// append custom properties to map
-			for key, value := range config.CustomProperties {
-				if _, ok := m[key]; !ok {
-					m[key] = value
-				}
-			}
-
-			requestConfig.BodyModel = struct {
-				Properties map[string]string `json:"properties"`
-			}{
-				m,
-			}
-		}
-	}
-
-	_, _, e := service.httpRequest(&requestConfig)
+	_, _, e = service.httpRequest(&requestConfig)
 	if e != nil {
 		return nil, e
 	}

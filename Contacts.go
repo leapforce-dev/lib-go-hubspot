@@ -41,13 +41,16 @@ type Contact struct {
 type ContactProperties struct {
 	FirstName                   *string                   `json:"firstname,omitempty"`
 	LastName                    *string                   `json:"lastname,omitempty"`
+	DateOfBirth                 *string                   `json:"date_of_birth,omitempty"`
 	JobTitle                    *string                   `json:"jobtitle,omitempty"`
 	Email                       *string                   `json:"email,omitempty"`
 	MobilePhone                 *string                   `json:"mobilephone,omitempty"`
 	Phone                       *string                   `json:"phone,omitempty"`
+	Fax                         *string                   `json:"fax,omitempty"`
 	Address                     *string                   `json:"address,omitempty"`
 	Zip                         *string                   `json:"zip,omitempty"`
 	City                        *string                   `json:"city,omitempty"`
+	State                       *string                   `json:"state,omitempty"`
 	Country                     *string                   `json:"country,omitempty"`
 	AveragePageviews            *go_types.Int64String     `json:"hs_analytics_average_page_views,omitempty"`
 	OriginalSource              *string                   `json:"hs_analytics_source,omitempty"`
@@ -71,6 +74,7 @@ type ContactProperties struct {
 	RecentSalesEmailRepliedDate *h_types.DateTimeMSString `json:"hs_sales_email_last_replied,omitempty"`
 	SourceOfLastBooking         *string                   `json:"engagements_last_meeting_booked_source,omitempty"`
 	Status                      *string                   `json:"hs_content_membership_status,omitempty"`
+	EmailOptOut                 *bool                     `json:"hs_email_optout,omitempty"`
 }
 
 type ContactProperty string
@@ -465,6 +469,54 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 	}
 
 	return &contacts, nil
+}
+
+type CreateContactConfig struct {
+	Properties       ContactProperties
+	CustomProperties map[string]json.RawMessage
+}
+
+func (service *Service) CreateContact(config *CreateContactConfig) (*Contact, *errortools.Error) {
+	endpoint := "objects/contacts"
+	contact := Contact{}
+
+	var properties = make(map[string]json.RawMessage)
+
+	b, err := json.Marshal(config.Properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	err = json.Unmarshal(b, &properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if config.CustomProperties != nil {
+		for key, value := range config.CustomProperties {
+			properties[key] = value
+		}
+	}
+
+	var properties_ = struct {
+		Properties map[string]json.RawMessage `json:"properties"`
+	}{
+		properties,
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.urlCrm(endpoint),
+		BodyModel:     properties_,
+		ResponseModel: &contact,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &contact, nil
 }
 
 type UpdateContactConfig struct {
