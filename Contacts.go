@@ -662,3 +662,92 @@ func getContact(contact *contact, customProperties *[]string) (*Contact, *errort
 
 	return &contact_, nil
 }
+
+type SearchContactConfig struct {
+	Limit        *uint          `json:"limit,omitempty"`
+	After        *string        `json:"after,omitempty"`
+	FilterGroups *[]FilterGroup `json:"filterGroups,omitempty"`
+	Sorts        *[]string      `json:"sorts,omitempty"`
+	Query        *string        `json:"query,omitempty"`
+	Properties   *[]string      `json:"properties,omitempty"`
+}
+
+// SearchContact returns a specific contact
+//
+func (service *Service) SearchContact(config *SearchContactConfig) (*[]Contact, *errortools.Error) {
+	if config == nil {
+		return nil, errortools.ErrorMessage("Config is nil")
+	}
+
+	endpoint := "objects/contacts/search"
+
+	contactsResponse := ContactsResponse{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.urlCrm(endpoint),
+		BodyModel:     config,
+		ResponseModel: &contactsResponse,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	customProperties := []string{}
+	if config.FilterGroups != nil {
+		for _, filterGroup := range *config.FilterGroups {
+			for _, filter := range *filterGroup.Filters {
+				if filter.isCustom {
+					customProperties = append(customProperties, filter.PropertyName)
+				}
+			}
+		}
+	}
+
+	after := config.After
+
+	contacts := []Contact{}
+
+	for {
+		contactsResponse := ContactsResponse{}
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm("objects/contacts/search"),
+			BodyModel:     config,
+			ResponseModel: &contactsResponse,
+		}
+
+		_, _, e := service.httpRequest(&requestConfig)
+		if e != nil {
+			return nil, e
+		}
+
+		for _, c := range contactsResponse.Results {
+			contact_, e := getContact(&c, config.Properties)
+			if e != nil {
+				return nil, e
+			}
+
+			contacts = append(contacts, *contact_)
+		}
+
+		if after != nil { // explicit after parameter requested
+			break
+		}
+
+		if contactsResponse.Paging == nil {
+			break
+		}
+
+		if contactsResponse.Paging.Next.After == "" {
+			break
+		}
+
+		config.After = &contactsResponse.Paging.Next.After
+	}
+
+	return &contacts, nil
+}
