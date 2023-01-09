@@ -8,6 +8,7 @@ import (
 	"github.com/leapforce-libraries/go_oauth2/tokensource"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const (
@@ -127,6 +128,10 @@ func NewServiceWithOAuth2(cfg *ServiceWithOAuth2Config) (*Service, *errortools.E
 }
 
 func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
+	return service.tryHttpRequest(requestConfig, false)
+}
+
+func (service *Service) tryHttpRequest(requestConfig *go_http.RequestConfig, isRetry bool) (*http.Request, *http.Response, *errortools.Error) {
 	var request *http.Request
 	var response *http.Response
 	var e *errortools.Error
@@ -159,6 +164,19 @@ func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http
 	}
 
 	if e != nil {
+		if response.StatusCode == http.StatusTooManyRequests && !isRetry {
+			remaining := response.Header["X-Hubspot-Ratelimit-Daily-Remaining"]
+
+			if len(remaining) == 1 {
+				if remaining[0] != "0" {
+					// try to catch the per second rate limit, but try this only once (isRetry)
+					fmt.Println("waiting 1 second...")
+					time.Sleep(time.Second)
+
+					return service.tryHttpRequest(requestConfig, true)
+				}
+			}
+		}
 		if service.errorResponse.Message != "" {
 			e.SetMessage(service.errorResponse.Message)
 		}

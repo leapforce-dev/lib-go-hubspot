@@ -42,6 +42,8 @@ type ContactProperties struct {
 	FirstName                   *string                   `json:"firstname,omitempty"`
 	LastName                    *string                   `json:"lastname,omitempty"`
 	DateOfBirth                 *string                   `json:"date_of_birth,omitempty"`
+	AssociatedCompanyId         *string                   `json:"associatedcompanyid,omitempty"`
+	Company                     *string                   `json:"company,omitempty"`
 	JobTitle                    *string                   `json:"jobtitle,omitempty"`
 	Email                       *string                   `json:"email,omitempty"`
 	MobilePhone                 *string                   `json:"mobilephone,omitempty"`
