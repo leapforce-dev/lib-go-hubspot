@@ -3,7 +3,7 @@ module github.com/leapforce-libraries/go_hubspot
 go 1.18
 
 require (
-	github.com/leapforce-libraries/go_errortools v0.0.0-20220808170134-6bf8d8106f1b
+	github.com/leapforce-libraries/go_errortools v0.0.0-20230111113652-2e37de91e990
 	github.com/leapforce-libraries/go_http v0.0.0-20220808204824-8a0e0bdcdfd1
 	github.com/leapforce-libraries/go_oauth2 v0.0.0-20221214115901-39922a58efbf
 	github.com/leapforce-libraries/go_types v0.0.0-20221223181720-62d92540aae9
@@ -16,7 +16,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/iam v0.6.0 // indirect
 	cloud.google.com/go/storage v1.27.0 // indirect
-	github.com/getsentry/sentry-go v0.13.0 // indirect
+	github.com/getsentry/sentry-go v0.16.0 // indirect
 	github.com/gofrs/uuid v4.3.1+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -31,7 +31,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.102.0 // indirect
