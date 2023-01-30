@@ -679,13 +679,11 @@ func (service *Service) BatchDeleteCompanies(companyIds []string) *errortools.Er
 	var index = 0
 	for len(companyIds) > index {
 		if len(companyIds) > index+maxItemsPerBatch {
-			fmt.Println(index, index+maxItemsPerBatch)
 			e := service.batchDeleteCompanies(companyIds[index : index+maxItemsPerBatch])
 			if e != nil {
 				return e
 			}
 		} else {
-			fmt.Println(index)
 			e := service.batchDeleteCompanies(companyIds[index:])
 			if e != nil {
 				return e
