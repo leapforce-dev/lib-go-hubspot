@@ -753,3 +753,58 @@ func (service *Service) SearchContact(config *SearchContactConfig) (*[]Contact, 
 
 	return &contacts, nil
 }
+
+func (service *Service) DeleteContact(contactId string) *errortools.Error {
+	requestConfig := go_http.RequestConfig{
+		Method: http.MethodDelete,
+		Url:    service.urlCrm(fmt.Sprintf("objects/contacts/%s", contactId)),
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	return e
+}
+
+func (service *Service) BatchDeleteContacts(contactIds []string) *errortools.Error {
+	var maxItemsPerBatch = 100
+	var index = 0
+	for len(contactIds) > index {
+		if len(contactIds) > index+maxItemsPerBatch {
+			e := service.batchDeleteContacts(contactIds[index : index+maxItemsPerBatch])
+			if e != nil {
+				return e
+			}
+		} else {
+			e := service.batchDeleteContacts(contactIds[index:])
+			if e != nil {
+				return e
+			}
+		}
+
+		index += maxItemsPerBatch
+	}
+
+	return nil
+}
+
+func (service *Service) batchDeleteContacts(contactIds []string) *errortools.Error {
+	var body struct {
+		Inputs []struct {
+			Id string `json:"id"`
+		} `json:"inputs"`
+	}
+
+	for _, contactId := range contactIds {
+		body.Inputs = append(body.Inputs, struct {
+			Id string `json:"id"`
+		}{contactId})
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:    http.MethodPost,
+		Url:       service.urlCrm("objects/contacts/batch/archive"),
+		BodyModel: body,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	return e
+}

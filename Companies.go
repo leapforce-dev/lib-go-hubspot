@@ -663,3 +663,60 @@ func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, 
 
 	return &companies, nil
 }
+
+func (service *Service) DeleteCompany(companyId string) *errortools.Error {
+	requestConfig := go_http.RequestConfig{
+		Method: http.MethodDelete,
+		Url:    service.urlCrm(fmt.Sprintf("objects/companies/%s", companyId)),
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	return e
+}
+
+func (service *Service) BatchDeleteCompanies(companyIds []string) *errortools.Error {
+	var maxItemsPerBatch = 100
+	var index = 0
+	for len(companyIds) > index {
+		if len(companyIds) > index+maxItemsPerBatch {
+			fmt.Println(index, index+maxItemsPerBatch)
+			e := service.batchDeleteCompanies(companyIds[index : index+maxItemsPerBatch])
+			if e != nil {
+				return e
+			}
+		} else {
+			fmt.Println(index)
+			e := service.batchDeleteCompanies(companyIds[index:])
+			if e != nil {
+				return e
+			}
+		}
+
+		index += maxItemsPerBatch
+	}
+
+	return nil
+}
+
+func (service *Service) batchDeleteCompanies(companyIds []string) *errortools.Error {
+	var body struct {
+		Inputs []struct {
+			Id string `json:"id"`
+		} `json:"inputs"`
+	}
+
+	for _, companyId := range companyIds {
+		body.Inputs = append(body.Inputs, struct {
+			Id string `json:"id"`
+		}{companyId})
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:    http.MethodPost,
+		Url:       service.urlCrm("objects/companies/batch/archive"),
+		BodyModel: body,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	return e
+}
