@@ -319,3 +319,100 @@ func getDeal(deal *deal, customProperties *[]string) (*Deal, *errortools.Error) 
 
 	return &deal_, nil
 }
+
+type CreateDealConfig struct {
+	Properties       DealProperties
+	CustomProperties map[string]json.RawMessage
+}
+
+func (service *Service) CreateDeal(config *CreateDealConfig) (*Deal, *errortools.Error) {
+	endpoint := "objects/deals"
+	deal := Deal{}
+
+	var properties = make(map[string]json.RawMessage)
+
+	b, err := json.Marshal(config.Properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	err = json.Unmarshal(b, &properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if config.CustomProperties != nil {
+		for key, value := range config.CustomProperties {
+			properties[key] = value
+		}
+	}
+
+	var properties_ = struct {
+		Properties map[string]json.RawMessage `json:"properties"`
+	}{
+		properties,
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.urlCrm(endpoint),
+		BodyModel:     properties_,
+		ResponseModel: &deal,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &deal, nil
+}
+
+type UpdateDealConfig struct {
+	DealId           string
+	Properties       DealProperties
+	CustomProperties map[string]json.RawMessage
+}
+
+func (service *Service) UpdateDeal(config *UpdateDealConfig) (*Deal, *errortools.Error) {
+	endpoint := "objects/deals"
+	deal := Deal{}
+
+	var properties = make(map[string]json.RawMessage)
+
+	b, err := json.Marshal(config.Properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	err = json.Unmarshal(b, &properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if config.CustomProperties != nil {
+		for key, value := range config.CustomProperties {
+			properties[key] = value
+		}
+	}
+
+	var properties_ = struct {
+		Properties map[string]json.RawMessage `json:"properties"`
+	}{
+		properties,
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPatch,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.DealId)),
+		BodyModel:     properties_,
+		ResponseModel: &deal,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &deal, nil
+}

@@ -39,21 +39,21 @@ type PropertiesResponse struct {
 // Property stores Property from Service
 //
 type Property struct {
-	Name                 string            `json:"name"`
-	Label                string            `json:"label"`
-	Type                 PropertyType      `json:"type"`
-	FieldType            PropertyFieldType `json:"fieldType"`
-	Description          *string           `json:"description,omitempty"`
-	GroupName            string            `json:"groupName"`
-	ReferencedObjectType *string           `json:"referencedObjectType,omitempty"`
-	DisplayOrder         *int64            `json:"displayOrder,omitempty"`
-	Calculated           *bool             `json:"calculated,omitempty"`
-	ExternalOptions      *bool             `json:"externalOption,omitemptys"`
-	HasUniqueValue       *bool             `json:"hasUniqueValue,omitempty"`
-	Hidden               *bool             `json:"hidden,omitempty"`
-	HubspotDefined       *bool             `json:"hubspotDefined,omitempty"`
-	FormField            *bool             `json:"formField,omitempty"`
-	Options              *[]PropertyOption `json:"options,omitempty"`
+	Name                 *string            `json:"name"`
+	Label                *string            `json:"label"`
+	Type                 *PropertyType      `json:"type"`
+	FieldType            *PropertyFieldType `json:"fieldType"`
+	Description          *string            `json:"description,omitempty"`
+	GroupName            *string            `json:"groupName"`
+	ReferencedObjectType *string            `json:"referencedObjectType,omitempty"`
+	DisplayOrder         *int64             `json:"displayOrder,omitempty"`
+	Calculated           *bool              `json:"calculated,omitempty"`
+	ExternalOptions      *bool              `json:"externalOption,omitemptys"`
+	HasUniqueValue       *bool              `json:"hasUniqueValue,omitempty"`
+	Hidden               *bool              `json:"hidden,omitempty"`
+	HubspotDefined       *bool              `json:"hubspotDefined,omitempty"`
+	FormField            *bool              `json:"formField,omitempty"`
+	Options              *[]PropertyOption  `json:"options,omitempty"`
 }
 
 type PropertyOption struct {
@@ -103,6 +103,27 @@ func (service *Service) CreateProperty(object string, property *Property) (*Prop
 	}
 
 	return &newProperty, nil
+}
+
+// UpdateProperty creates a property
+//
+func (service *Service) UpdateProperty(object string, property *Property) (*Property, *errortools.Error) {
+	endpoint := "properties"
+	updatedProperty := Property{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPatch,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s/%s", endpoint, object, *property.Name)),
+		BodyModel:     property,
+		ResponseModel: &updatedProperty,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &updatedProperty, nil
 }
 
 type PropertyGroupsResponse struct {

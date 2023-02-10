@@ -43,6 +43,14 @@ func (d *DateTimeString) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (d *DateTimeString) MarshalJSON() ([]byte, error) {
+	if d == nil {
+		return nil, nil
+	}
+
+	return json.Marshal(time.Time(*d).Format(dateTimeFormat))
+}
+
 func (d *DateTimeString) ValuePtr() *time.Time {
 	if d == nil {
 		return nil

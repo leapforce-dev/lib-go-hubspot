@@ -33,9 +33,9 @@ type AssociationV4 struct {
 }
 
 type AssociationType struct {
-	Category string `json:"category"`
-	TypeId   int64  `json:"typeId"`
-	Label    string `json:"label"`
+	Category string  `json:"category"`
+	TypeId   int64   `json:"typeId"`
+	Label    *string `json:"label"`
 }
 
 type AssociationTypeV4 struct {
@@ -141,4 +141,29 @@ func (service *Service) CreateAssociation(config *CreateAssociationConfig) (*Cre
 	}
 
 	return &createAssociationResponse, nil
+}
+
+type GetAssociationTypesConfig struct {
+	FromObjectType ObjectType
+	ToObjectType   ObjectType
+	Ids            []string
+}
+
+func (service *Service) GetAssociationTypes(config *GetAssociationTypesConfig) (*[]AssociationType, *errortools.Error) {
+	var response struct {
+		Results []AssociationType `json:"results"`
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodGet,
+		Url:           service.urlV4(fmt.Sprintf("associations/%s/%s/labels", config.FromObjectType, config.ToObjectType)),
+		ResponseModel: &response,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &response.Results, nil
 }
