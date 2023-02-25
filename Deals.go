@@ -19,7 +19,6 @@ type DealsResponse struct {
 }
 
 // Deal stores Deal from Service
-//
 type deal struct {
 	Id           string                     `json:"id"`
 	Properties   json.RawMessage            `json:"properties"`
@@ -194,7 +193,6 @@ type GetDealsConfig struct {
 }
 
 // GetDeals returns all deals
-//
 func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.Error) {
 	values := url.Values{}
 	endpoint := "objects/deals"
@@ -415,4 +413,49 @@ func (service *Service) UpdateDeal(config *UpdateDealConfig) (*Deal, *errortools
 	}
 
 	return &deal, nil
+}
+
+func (service *Service) BatchDeleteDeals(dealIds []string) *errortools.Error {
+	var maxItemsPerBatch = 100
+	var index = 0
+	for len(dealIds) > index {
+		if len(dealIds) > index+maxItemsPerBatch {
+			e := service.batchDeleteDeals(dealIds[index : index+maxItemsPerBatch])
+			if e != nil {
+				return e
+			}
+		} else {
+			e := service.batchDeleteDeals(dealIds[index:])
+			if e != nil {
+				return e
+			}
+		}
+
+		index += maxItemsPerBatch
+	}
+
+	return nil
+}
+
+func (service *Service) batchDeleteDeals(dealIds []string) *errortools.Error {
+	var body struct {
+		Inputs []struct {
+			Id string `json:"id"`
+		} `json:"inputs"`
+	}
+
+	for _, dealId := range dealIds {
+		body.Inputs = append(body.Inputs, struct {
+			Id string `json:"id"`
+		}{dealId})
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:    http.MethodPost,
+		Url:       service.urlCrm("objects/deals/batch/archive"),
+		BodyModel: body,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	return e
 }
