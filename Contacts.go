@@ -19,7 +19,6 @@ type ContactsResponse struct {
 }
 
 // Contact stores Contact from Service
-//
 type contact struct {
 	Id           string                     `json:"id"`
 	Properties   json.RawMessage            `json:"properties"`
@@ -349,7 +348,6 @@ type GetContactsConfig struct {
 }
 
 // GetContacts returns all contacts
-//
 func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *errortools.Error) {
 	values := url.Values{}
 	endpoint := "objects/contacts"
@@ -578,7 +576,6 @@ type GetContactConfig struct {
 }
 
 // GetContact returns a specific contact
-//
 func (service *Service) GetContact(config *GetContactConfig) (*Contact, *errortools.Error) {
 	values := url.Values{}
 	endpoint := "objects/contacts"
@@ -675,7 +672,6 @@ type SearchContactConfig struct {
 }
 
 // SearchContact returns a specific contact
-//
 func (service *Service) SearchContact(config *SearchContactConfig) (*[]Contact, *errortools.Error) {
 	if config == nil {
 		return nil, errortools.ErrorMessage("Config is nil")

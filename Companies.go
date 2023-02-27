@@ -19,7 +19,6 @@ type CompaniesResponse struct {
 }
 
 // Company stores Company from Service
-//
 type company struct {
 	Id           string                     `json:"id"`
 	Properties   json.RawMessage            `json:"properties"`
@@ -218,7 +217,6 @@ type GetCompaniesConfig struct {
 }
 
 // GetCompanies returns all companies
-//
 func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *errortools.Error) {
 	values := url.Values{}
 	endpoint := "objects/companies"
@@ -451,7 +449,6 @@ type GetCompanyConfig struct {
 }
 
 // GetCompany returns a specific company
-//
 func (service *Service) GetCompany(config *GetCompanyConfig) (*Company, *errortools.Error) {
 	values := url.Values{}
 	endpoint := "objects/companies"
@@ -551,7 +548,7 @@ type FilterGroup struct {
 	Filters *[]filter `json:"filters"`
 }
 
-func (fg *FilterGroup) AddPropertyFilter(operator string, property string, value string) {
+func (fg *FilterGroup) AddPropertyFilter(operator string, property string, value string, highValue string) {
 	if fg.Filters == nil {
 		fg.Filters = &[]filter{}
 	}
@@ -560,11 +557,12 @@ func (fg *FilterGroup) AddPropertyFilter(operator string, property string, value
 		Operator:     operator,
 		PropertyName: property,
 		Value:        value,
+		HighValue:    highValue,
 		isCustom:     false,
 	})
 }
 
-func (fg *FilterGroup) AddCustomPropertyFilter(operator string, propertyName string, value string) {
+func (fg *FilterGroup) AddCustomPropertyFilter(operator string, propertyName string, value string, highValue string) {
 	if fg.Filters == nil {
 		fg.Filters = &[]filter{}
 	}
@@ -573,6 +571,7 @@ func (fg *FilterGroup) AddCustomPropertyFilter(operator string, propertyName str
 		Operator:     operator,
 		PropertyName: propertyName,
 		Value:        value,
+		HighValue:    highValue,
 		isCustom:     true,
 	})
 }
@@ -581,11 +580,11 @@ type filter struct {
 	Operator     string `json:"operator"`
 	PropertyName string `json:"propertyName,omitempty"`
 	Value        string `json:"value"`
+	HighValue    string `json:"highValue,omitempty"`
 	isCustom     bool   `json:"-"`
 }
 
 // SearchCompany returns a specific company
-//
 func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, *errortools.Error) {
 	if config == nil {
 		return nil, errortools.ErrorMessage("Config is nil")
