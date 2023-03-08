@@ -143,6 +143,69 @@ func (service *Service) CreateAssociation(config *CreateAssociationConfig) (*Cre
 	return &createAssociationResponse, nil
 }
 
+type GetAssociationsConfig struct {
+	FromObjectType ObjectType
+	FromObjectId   string
+	ToObjectType   ObjectType
+}
+
+type GetAssociationsResponse struct {
+	Results []struct {
+		ToObjectId       int64             `json:"toObjectId"`
+		AssociationTypes []AssociationType `json:"associationTypes"`
+	} `json:"results"`
+}
+
+func (service *Service) GetAssociations(config *GetAssociationsConfig) (*GetAssociationsResponse, *errortools.Error) {
+	if config == nil {
+		return nil, nil
+	}
+
+	endpoint := fmt.Sprintf("objects/%s/%s/associations/%s", config.FromObjectType, config.FromObjectId, config.ToObjectType)
+
+	var getAssociationsResponse GetAssociationsResponse
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodGet,
+		Url:           service.urlV4(endpoint),
+		ResponseModel: &getAssociationsResponse,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &getAssociationsResponse, nil
+}
+
+type DeleteAssociationConfig struct {
+	FromObjectType ObjectType
+	FromObjectId   string
+	ToObjectType   ObjectType
+	ToObjectId     string
+}
+
+func (service *Service) DeleteAssociation(config *DeleteAssociationConfig) *errortools.Error {
+	if config == nil {
+		return nil
+	}
+
+	endpoint := fmt.Sprintf("objects/%s/%s/associations/%s/%s", config.FromObjectType, config.FromObjectId, config.ToObjectType, config.ToObjectId)
+
+	requestConfig := go_http.RequestConfig{
+		Method: http.MethodDelete,
+		Url:    service.urlV4(endpoint),
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return e
+	}
+
+	return nil
+}
+
 type GetAssociationTypesConfig struct {
 	FromObjectType ObjectType
 	ToObjectType   ObjectType
