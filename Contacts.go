@@ -339,12 +339,11 @@ const (
 )
 
 type GetContactsConfig struct {
-	Limit            *uint
-	After            *string
-	Properties       *[]ContactProperty
-	CustomProperties *[]string
-	Associations     *[]ObjectType
-	Archived         *bool
+	Limit        *uint
+	After        *string
+	Properties   *[]string
+	Associations *[]ObjectType
+	Archived     *bool
 }
 
 // GetContacts returns all contacts
@@ -356,21 +355,10 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 		if config.Limit != nil {
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
-		_properties := []string{}
 		if config.Properties != nil {
 			if len(*config.Properties) > 0 {
-				for _, p := range *config.Properties {
-					_properties = append(_properties, string(p))
-				}
+				values.Set("properties", strings.Join(*config.Properties, ","))
 			}
-		}
-		if config.CustomProperties != nil {
-			if len(*config.CustomProperties) > 0 {
-				_properties = append(_properties, *config.CustomProperties...)
-			}
-		}
-		if len(_properties) > 0 {
-			values.Set("properties", strings.Join(_properties, ","))
 		}
 		if config.Associations != nil {
 			if len(*config.Associations) > 0 {
@@ -412,7 +400,7 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 		}
 
 		for _, c := range contactsResponse.Results {
-			contact_, e := getContact(&c, config.CustomProperties)
+			contact_, e := getContact(&c, config.Properties)
 			if e != nil {
 				return nil, e
 			}

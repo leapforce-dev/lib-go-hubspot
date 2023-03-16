@@ -3,7 +3,7 @@ module github.com/leapforce-libraries/go_hubspot
 go 1.20
 
 require (
-	github.com/leapforce-libraries/go_errortools v0.0.0-20230111113652-2e37de91e990
+	github.com/leapforce-libraries/go_errortools v0.0.0-20230306211452-9ccee0cdafe8
 	github.com/leapforce-libraries/go_http v0.0.0-20220808204824-8a0e0bdcdfd1
 	github.com/leapforce-libraries/go_oauth2 v0.0.0-20221214115901-39922a58efbf
 	github.com/leapforce-libraries/go_types v0.0.0-20230209235725-e0c0b0948f2b
@@ -16,7 +16,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/iam v0.6.0 // indirect
 	cloud.google.com/go/storage v1.27.0 // indirect
-	github.com/getsentry/sentry-go v0.16.0 // indirect
+	github.com/getsentry/sentry-go v0.19.0 // indirect
 	github.com/gofrs/uuid v4.3.1+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
