@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -20,21 +21,30 @@ type DealsResponse struct {
 
 // Deal stores Deal from Service
 type deal struct {
-	Id           string                     `json:"id"`
-	Properties   json.RawMessage            `json:"properties"`
-	CreatedAt    h_types.DateTimeString     `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeString     `json:"updatedAt"`
-	Archived     bool                       `json:"archived"`
-	Associations map[string]AssociationsSet `json:"associations"`
+	Id                    string                       `json:"id"`
+	Properties            json.RawMessage              `json:"properties"`
+	CreatedAt             h_types.DateTimeString       `json:"createdAt"`
+	UpdatedAt             h_types.DateTimeString       `json:"updatedAt"`
+	Archived              bool                         `json:"archived"`
+	Associations          map[string]AssociationsSet   `json:"associations"`
+	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
 type Deal struct {
-	Id               string
-	Properties       DealProperties
-	CustomProperties map[string]string
-	CreatedAt        h_types.DateTimeString
-	UpdatedAt        h_types.DateTimeString
-	Archived         bool
-	Associations     map[string]AssociationsSet
+	Id                    string
+	Properties            DealProperties
+	CustomProperties      map[string]string
+	CreatedAt             h_types.DateTimeString
+	UpdatedAt             h_types.DateTimeString
+	Archived              bool
+	Associations          map[string]AssociationsSet
+	PropertiesWithHistory map[string][]PropertyHistory
+}
+type PropertyHistory struct {
+	Value           string    `json:"value"`
+	Timestamp       time.Time `json:"timestamp"`
+	SourceType      string    `json:"sourceType"`
+	SourceId        string    `json:"sourceId"`
+	UpdatedByUserId int       `json:"updatedByUserId"`
 }
 
 type DealProperties struct {
@@ -184,12 +194,13 @@ const (
 )
 
 type GetDealsConfig struct {
-	Limit            *uint
-	After            *string
-	Properties       *[]DealProperty
-	CustomProperties *[]string
-	Associations     *[]ObjectType
-	Archived         *bool
+	Limit                 *uint
+	After                 *string
+	Properties            *[]DealProperty
+	CustomProperties      *[]string
+	PropertiesWithHistory *[]string
+	Associations          *[]ObjectType
+	Archived              *bool
 }
 
 // GetDeals returns all deals
@@ -212,6 +223,11 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 		if config.CustomProperties != nil {
 			if len(*config.CustomProperties) > 0 {
 				_properties = append(_properties, *config.CustomProperties...)
+			}
+		}
+		if config.PropertiesWithHistory != nil {
+			if len(*config.PropertiesWithHistory) > 0 {
+				values.Set("propertiesWithHistory", strings.Join(*config.PropertiesWithHistory, ","))
 			}
 		}
 		if len(_properties) > 0 {
@@ -284,12 +300,13 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 
 func getDeal(deal *deal, customProperties *[]string) (*Deal, *errortools.Error) {
 	deal_ := Deal{
-		Id:               deal.Id,
-		CreatedAt:        deal.CreatedAt,
-		UpdatedAt:        deal.UpdatedAt,
-		Archived:         deal.Archived,
-		Associations:     deal.Associations,
-		CustomProperties: make(map[string]string),
+		Id:                    deal.Id,
+		CreatedAt:             deal.CreatedAt,
+		UpdatedAt:             deal.UpdatedAt,
+		Archived:              deal.Archived,
+		Associations:          deal.Associations,
+		CustomProperties:      make(map[string]string),
+		PropertiesWithHistory: deal.PropertiesWithHistory,
 	}
 	if deal.Properties != nil {
 		p := DealProperties{}
