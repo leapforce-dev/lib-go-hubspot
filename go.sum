@@ -36,8 +36,8 @@ github.com/getsentry/sentry-go v0.19.0/go.mod h1:y3+lGEFEFexZtpbG1GUE2WD/f9zGyKY
 github.com/go-errors/errors v1.4.2 h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxIA=
 github.com/goccy/go-json v0.9.11 h1:/pAaQDLHEoCq/5FFmSKBswWmK6H0e8g4159Kc/X/nqk=
 github.com/goccy/go-json v0.9.11/go.mod h1:6MelG93GURQebXPDq3khkgXZkazVtN9CRI+MGFi0w8I=
-github.com/gofrs/uuid v4.3.1+incompatible h1:0/KbAdpx3UXAx1kEOWHJeOkpbgRFGHVgv+CFIY7dBJI=
-github.com/gofrs/uuid v4.3.1+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
+github.com/gofrs/uuid v4.4.0+incompatible h1:3qXRTX8/NbyulANqlc0lchS1gqAVxRgsuW1YrTJupqA=
+github.com/gofrs/uuid v4.4.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e h1:1r7pUrabqp18hOBcwBwiTsbnFeTZHV9eER/QT5JVZxY=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
@@ -95,8 +95,8 @@ github.com/leapforce-libraries/go_integration v0.0.0-20221219180324-1d9ce9d12c4c
 github.com/leapforce-libraries/go_integration v0.0.0-20221219180324-1d9ce9d12c4c/go.mod h1:6cnnSYXhZPWYzVWyzoyO0IPpggS/sJlBahXH0CqcRsA=
 github.com/leapforce-libraries/go_oauth2 v0.0.0-20221214115901-39922a58efbf h1:MpWcJnOmG7nIa8eWKPsn4iOkqUUrPyDPvSlYnQD6IYw=
 github.com/leapforce-libraries/go_oauth2 v0.0.0-20221214115901-39922a58efbf/go.mod h1:Q2CSaxCFQg20Q0zBLGzXguHYHUIv6BEfgzWQS8c5nSE=
-github.com/leapforce-libraries/go_types v0.0.0-20230209235725-e0c0b0948f2b h1:6bt3s35I2X4Rb824qxM6VVLrUg6aATrrHHQmGdjtBX4=
-github.com/leapforce-libraries/go_types v0.0.0-20230209235725-e0c0b0948f2b/go.mod h1:Y0/V74PLkpdCI/7PloIm9FmA5yYFbeyfs7PsY8gWKlI=
+github.com/leapforce-libraries/go_types v0.0.0-20230425074203-34c9cae0aa4e h1:77VkZu4xDKBjnsD4DNGleoInlBs+8CNfaeHXU2S8E8o=
+github.com/leapforce-libraries/go_types v0.0.0-20230425074203-34c9cae0aa4e/go.mod h1:u3a04cSiTbrvyXaf4F4PFaX67f94t4/bRWGFZrYChC8=
 github.com/leapforce-libraries/go_utilities v0.0.0-20230320164646-a793abe241b2 h1:qWmBoXnzDxpIWnfII0fj8EYF3tGhOhpDKLKwGS/cePI=
 github.com/leapforce-libraries/go_utilities v0.0.0-20230320164646-a793abe241b2/go.mod h1:HLOY8n9BUFREhYEVp9+wIgzZan6ikl7kzl6NNP99sns=
 github.com/minio/asm2plan9s v0.0.0-20200509001527-cdd76441f9d8 h1:AMFGa4R4MiIpspGNG7Z948v4n35fFGB3RR3G/ry4FWs=

@@ -27,6 +27,7 @@ type contact struct {
 	Archived     bool                       `json:"archived"`
 	Associations map[string]AssociationsSet `json:"associations"`
 }
+
 type Contact struct {
 	Id               string
 	Properties       ContactProperties

@@ -6,7 +6,7 @@ require (
 	github.com/leapforce-libraries/go_errortools v0.0.0-20230306211452-9ccee0cdafe8
 	github.com/leapforce-libraries/go_http v0.0.0-20230420114702-86cc77fcf983
 	github.com/leapforce-libraries/go_oauth2 v0.0.0-20221214115901-39922a58efbf
-	github.com/leapforce-libraries/go_types v0.0.0-20230209235725-e0c0b0948f2b
+	github.com/leapforce-libraries/go_types v0.0.0-20230425074203-34c9cae0aa4e
 )
 
 require (
@@ -21,7 +21,7 @@ require (
 	github.com/apache/thrift v0.16.0 // indirect
 	github.com/getsentry/sentry-go v0.19.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
-	github.com/gofrs/uuid v4.3.1+incompatible // indirect
+	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
