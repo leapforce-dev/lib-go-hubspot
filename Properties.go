@@ -37,7 +37,6 @@ type PropertiesResponse struct {
 }
 
 // Property stores Property from Service
-//
 type Property struct {
 	Name                 *string            `json:"name"`
 	Label                *string            `json:"label"`
@@ -65,7 +64,6 @@ type PropertyOption struct {
 }
 
 // GetProperties returns all properties
-//
 func (service *Service) GetProperties(object string) (*[]Property, *errortools.Error) {
 	endpoint := "properties"
 	propertiesResponse := PropertiesResponse{}
@@ -85,7 +83,6 @@ func (service *Service) GetProperties(object string) (*[]Property, *errortools.E
 }
 
 // CreateProperty creates a property
-//
 func (service *Service) CreateProperty(object string, property *Property) (*Property, *errortools.Error) {
 	endpoint := "properties"
 	newProperty := Property{}
@@ -105,8 +102,7 @@ func (service *Service) CreateProperty(object string, property *Property) (*Prop
 	return &newProperty, nil
 }
 
-// UpdateProperty creates a property
-//
+// UpdateProperty updates a property
 func (service *Service) UpdateProperty(object string, property *Property) (*Property, *errortools.Error) {
 	endpoint := "properties"
 	updatedProperty := Property{}
@@ -137,7 +133,6 @@ type PropertyGroup struct {
 }
 
 // GetPropertyGroups returns all property groups
-//
 func (service *Service) GetPropertyGroups(object string) (*[]PropertyGroup, *errortools.Error) {
 	propertyGroupsResponse := PropertyGroupsResponse{}
 
@@ -156,7 +151,6 @@ func (service *Service) GetPropertyGroups(object string) (*[]PropertyGroup, *err
 }
 
 // CreatePropertyGroup creates a property group
-//
 func (service *Service) CreatePropertyGroup(object string, propertyGroup *PropertyGroup) (*PropertyGroup, *errortools.Error) {
 	newPropertyGroup := PropertyGroup{}
 
@@ -173,4 +167,79 @@ func (service *Service) CreatePropertyGroup(object string, propertyGroup *Proper
 	}
 
 	return &newPropertyGroup, nil
+}
+
+// ArchiveProperty archives a property
+func (service *Service) ArchiveProperty(object string, propertyName string) *errortools.Error {
+	requestConfig := go_http.RequestConfig{
+		Method: http.MethodDelete,
+		Url:    service.urlCrm(fmt.Sprintf("properties/%s/%s", object, propertyName)),
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return e
+	}
+
+	return nil
+}
+
+// ArchivePropertyGroup archives a property group
+func (service *Service) ArchivePropertyGroup(object string, propertyGroupName string) *errortools.Error {
+	requestConfig := go_http.RequestConfig{
+		Method: http.MethodDelete,
+		Url:    service.urlCrm(fmt.Sprintf("properties/%s/groups/%s", object, propertyGroupName)),
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return e
+	}
+
+	return nil
+}
+
+func (service *Service) BatchArchiveProperties(object string, propertyNames []string) *errortools.Error {
+	var maxItemsPerBatch = 100
+	var index = 0
+	for len(propertyNames) > index {
+		if len(propertyNames) > index+maxItemsPerBatch {
+			e := service.batchArchiveProperties(object, propertyNames[index:index+maxItemsPerBatch])
+			if e != nil {
+				return e
+			}
+		} else {
+			e := service.batchArchiveProperties(object, propertyNames[index:])
+			if e != nil {
+				return e
+			}
+		}
+
+		index += maxItemsPerBatch
+	}
+
+	return nil
+}
+
+func (service *Service) batchArchiveProperties(object string, propertyNames []string) *errortools.Error {
+	var body struct {
+		Inputs []struct {
+			Name string `json:"name"`
+		} `json:"inputs"`
+	}
+
+	for _, propertyName := range propertyNames {
+		body.Inputs = append(body.Inputs, struct {
+			Name string `json:"name"`
+		}{propertyName})
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:    http.MethodPost,
+		Url:       service.urlCrm(fmt.Sprintf("properties/%s/batch/archive", object)),
+		BodyModel: body,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	return e
 }
