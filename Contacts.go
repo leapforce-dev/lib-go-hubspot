@@ -462,45 +462,32 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 
 type CreateContactConfig struct {
 	Properties       ContactProperties
-	CustomProperties map[string]json.RawMessage
+	CustomProperties map[string]string
 }
 
 func (service *Service) CreateContact(config *CreateContactConfig) (*Contact, *errortools.Error) {
 	endpoint := "objects/contacts"
 	contact := Contact{}
 
-	var properties = make(map[string]json.RawMessage)
-
-	b, err := json.Marshal(config.Properties)
-	if err != nil {
-		return nil, errortools.ErrorMessage(err)
+	body, e := contactPropertiesBody(config.Properties, config.CustomProperties)
+	if e != nil {
+		return nil, e
 	}
 
-	err = json.Unmarshal(b, &properties)
-	if err != nil {
-		return nil, errortools.ErrorMessage(err)
-	}
-
-	if config.CustomProperties != nil {
-		for key, value := range config.CustomProperties {
-			properties[key] = value
-		}
-	}
-
-	var properties_ = struct {
-		Properties map[string]json.RawMessage `json:"properties"`
+	properties := struct {
+		Properties map[string]string `json:"properties"`
 	}{
-		properties,
+		body,
 	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPost,
 		Url:           service.urlCrm(endpoint),
-		BodyModel:     properties_,
+		BodyModel:     properties,
 		ResponseModel: &contact,
 	}
 
-	_, _, e := service.httpRequest(&requestConfig)
+	_, _, e = service.httpRequest(&requestConfig)
 	if e != nil {
 		return nil, e
 	}
@@ -508,48 +495,65 @@ func (service *Service) CreateContact(config *CreateContactConfig) (*Contact, *e
 	return &contact, nil
 }
 
+func contactPropertiesBody(properties ContactProperties, customProperties map[string]string) (map[string]string, *errortools.Error) {
+	// marshal
+	b, err := json.Marshal(properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+	// unmarshal to map
+	m := make(map[string]string)
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if customProperties == nil {
+		return m, nil
+	}
+	if len(customProperties) == 0 {
+		return m, nil
+	}
+
+	// append custom properties to map
+	for key, value := range customProperties {
+		if _, ok := m[key]; !ok {
+			m[key] = value
+		}
+	}
+
+	return m, nil
+}
+
 type UpdateContactConfig struct {
 	ContactId        string
 	Properties       ContactProperties
-	CustomProperties map[string]json.RawMessage
+	CustomProperties map[string]string
 }
 
 func (service *Service) UpdateContact(config *UpdateContactConfig) (*Contact, *errortools.Error) {
 	endpoint := "objects/contacts"
 	contact := Contact{}
 
-	var properties = make(map[string]json.RawMessage)
-
-	b, err := json.Marshal(config.Properties)
-	if err != nil {
-		return nil, errortools.ErrorMessage(err)
+	body, e := contactPropertiesBody(config.Properties, config.CustomProperties)
+	if e != nil {
+		return nil, e
 	}
 
-	err = json.Unmarshal(b, &properties)
-	if err != nil {
-		return nil, errortools.ErrorMessage(err)
-	}
-
-	if config.CustomProperties != nil {
-		for key, value := range config.CustomProperties {
-			properties[key] = value
-		}
-	}
-
-	var properties_ = struct {
-		Properties map[string]json.RawMessage `json:"properties"`
+	properties := struct {
+		Properties map[string]string `json:"properties"`
 	}{
-		properties,
+		body,
 	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
 		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ContactId)),
-		BodyModel:     properties_,
+		BodyModel:     properties,
 		ResponseModel: &contact,
 	}
 
-	_, _, e := service.httpRequest(&requestConfig)
+	_, _, e = service.httpRequest(&requestConfig)
 	if e != nil {
 		return nil, e
 	}

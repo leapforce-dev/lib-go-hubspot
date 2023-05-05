@@ -27,6 +27,7 @@ type company struct {
 	Archived     bool                       `json:"archived"`
 	Associations map[string]AssociationsSet `json:"associations"`
 }
+
 type Company struct {
 	Id               string
 	Properties       CompanyProperties
@@ -337,7 +338,7 @@ func (service *Service) CreateCompany(config *CreateCompanyConfig) (*Company, *e
 	endpoint := "objects/companies"
 	company := Company{}
 
-	body, e := propertiesBody(config.Properties, config.CustomProperties)
+	body, e := companyPropertiesBody(config.Properties, config.CustomProperties)
 	if e != nil {
 		return nil, e
 	}
@@ -363,7 +364,7 @@ func (service *Service) CreateCompany(config *CreateCompanyConfig) (*Company, *e
 	return &company, nil
 }
 
-func propertiesBody(properties CompanyProperties, customProperties map[string]string) (map[string]string, *errortools.Error) {
+func companyPropertiesBody(properties CompanyProperties, customProperties map[string]string) (map[string]string, *errortools.Error) {
 	// marshal
 	b, err := json.Marshal(properties)
 	if err != nil {
@@ -403,7 +404,7 @@ func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *e
 	endpoint := "objects/companies"
 	company := Company{}
 
-	body, e := propertiesBody(config.Properties, config.CustomProperties)
+	body, e := companyPropertiesBody(config.Properties, config.CustomProperties)
 	if e != nil {
 		return nil, e
 	}
