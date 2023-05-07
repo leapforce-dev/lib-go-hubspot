@@ -48,6 +48,7 @@ type Property struct {
 	DisplayOrder         *int64             `json:"displayOrder,omitempty"`
 	Calculated           *bool              `json:"calculated,omitempty"`
 	ExternalOptions      *bool              `json:"externalOption,omitemptys"`
+	Archived             *bool              `json:"archived,omitempty"`
 	HasUniqueValue       *bool              `json:"hasUniqueValue,omitempty"`
 	Hidden               *bool              `json:"hidden,omitempty"`
 	HubspotDefined       *bool              `json:"hubspotDefined,omitempty"`
