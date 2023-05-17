@@ -23,12 +23,28 @@ type AccessToken struct {
 }
 
 // InspectAccessToken returns information about an access token
-func (service *Service) InspectAccessToken(accessToken string) (*AccessToken, *errortools.Error) {
+func (service *Service) InspectAccessToken(accessToken *string) (*AccessToken, *errortools.Error) {
 	var a AccessToken
+
+	if accessToken == nil {
+		if service.authorizationMode == authorizationModeOAuth2 {
+			token, e := service.oAuth2Service.ValidateToken()
+			if e != nil {
+				return nil, e
+			}
+			accessToken = token.AccessToken
+		} else if service.authorizationMode == authorizationModeAccessToken {
+			accessToken = &service.accessToken
+		} else {
+			return nil, errortools.ErrorMessage("Current authorization mode does not allow this method.")
+		}
+	}
+
+	service.oAuth2Service.ValidateToken()
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodGet,
-		Url:           service.urlOAuth(fmt.Sprintf("access-tokens/%s", accessToken)),
+		Url:           service.urlOAuth(fmt.Sprintf("access-tokens/%s", *accessToken)),
 		ResponseModel: &a,
 	}
 
