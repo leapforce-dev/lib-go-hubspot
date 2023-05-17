@@ -16,11 +16,12 @@ const (
 	apiUrlEngagements  string = "https://api.hubapi.com/engagements"
 	apiUrlFiles        string = "https://api.hubapi.com/files"
 	apiUrlCrm          string = "https://api.hubapi.com/crm"
+	apiUrlOAuth        string = "https://api.hubapi.com/oauth"
 	apiUrlAccountInfo  string = "https://api.hubapi.com/account-info"
 	defaultRedirectUrl string = "http://localhost:8080/oauth/redirect"
 	authUrl            string = "https://app-eu1.hubspot.com/oauth/authorize"
-	tokenUrl           string = "https://api.hubapi.com/oauth/v1/token"
-	tokenHttpMethod    string = http.MethodPost
+	//tokenUrl           string = "https://api.hubapi.com/oauth/v1/token"
+	tokenHttpMethod string = http.MethodPost
 )
 
 type authorizationMode string
@@ -110,7 +111,7 @@ func NewServiceWithOAuth2(cfg *ServiceWithOAuth2Config) (*Service, *errortools.E
 		ClientSecret:    cfg.ClientSecret,
 		RedirectUrl:     redirectUrl,
 		AuthUrl:         authUrl,
-		TokenUrl:        tokenUrl,
+		TokenUrl:        fmt.Sprintf("%s/v1/token", apiUrlOAuth),
 		TokenHttpMethod: tokenHttpMethod,
 		TokenSource:     cfg.TokenSource,
 	}
@@ -210,6 +211,10 @@ func (service *Service) urlFiles(path string) string {
 
 func (service *Service) urlCrm(path string) string {
 	return fmt.Sprintf("%s/v3/%s", apiUrlCrm, path)
+}
+
+func (service *Service) urlOAuth(path string) string {
+	return fmt.Sprintf("%s/v1/%s", apiUrlOAuth, path)
 }
 
 func (service *Service) urlAccountInfo(path string) string {
