@@ -337,14 +337,14 @@ func getDeal(deal *deal, customProperties *[]string) (*Deal, *errortools.Error) 
 
 type CreateDealConfig struct {
 	Properties       DealProperties
-	CustomProperties map[string]json.RawMessage
+	CustomProperties map[string]string
 }
 
 func (service *Service) CreateDeal(config *CreateDealConfig) (*Deal, *errortools.Error) {
 	endpoint := "objects/deals"
 	deal := Deal{}
 
-	var properties = make(map[string]json.RawMessage)
+	var properties = make(map[string]string)
 
 	b, err := json.Marshal(config.Properties)
 	if err != nil {
@@ -363,7 +363,7 @@ func (service *Service) CreateDeal(config *CreateDealConfig) (*Deal, *errortools
 	}
 
 	var properties_ = struct {
-		Properties map[string]json.RawMessage `json:"properties"`
+		Properties map[string]string `json:"properties"`
 	}{
 		properties,
 	}
@@ -386,14 +386,14 @@ func (service *Service) CreateDeal(config *CreateDealConfig) (*Deal, *errortools
 type UpdateDealConfig struct {
 	DealId           string
 	Properties       DealProperties
-	CustomProperties map[string]json.RawMessage
+	CustomProperties map[string]string
 }
 
 func (service *Service) UpdateDeal(config *UpdateDealConfig) (*Deal, *errortools.Error) {
 	endpoint := "objects/deals"
 	deal := Deal{}
 
-	var properties = make(map[string]json.RawMessage)
+	var properties = make(map[string]string)
 
 	b, err := json.Marshal(config.Properties)
 	if err != nil {
@@ -412,7 +412,7 @@ func (service *Service) UpdateDeal(config *UpdateDealConfig) (*Deal, *errortools
 	}
 
 	var properties_ = struct {
-		Properties map[string]json.RawMessage `json:"properties"`
+		Properties map[string]string `json:"properties"`
 	}{
 		properties,
 	}
