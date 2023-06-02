@@ -48,17 +48,17 @@ type PropertyHistory struct {
 }
 
 type DealProperties struct {
-	Amount              *go_types.Float64String   `json:"amount"`
-	Assist              *string                   `json:"assist"`
-	Category            *string                   `json:"category"`
-	CloseDate           *h_types.DateTimeMSString `json:"closedate"`
-	CreateDate          *h_types.DateTimeMSString `json:"createdate"`
-	DealName            *string                   `json:"dealname"`
-	DealStage           *string                   `json:"dealstage"`
-	ForecastAmount      *go_types.Float64String   `json:"hs_forecast_amount"`
-	ForecastProbability *go_types.Float64String   `json:"hs_forecast_probability"`
-	LastUpdated         *h_types.DateTimeMSString `json:"notes_last_updated"`
-	OwnerId             *string                   `json:"hubspot_owner_id"`
+	Amount              *go_types.Float64String   `json:"amount,omitempty"`
+	Assist              *string                   `json:"assist,omitempty"`
+	Category            *string                   `json:"category,omitempty"`
+	CloseDate           *h_types.DateTimeMSString `json:"closedate,omitempty"`
+	CreateDate          *h_types.DateTimeMSString `json:"createdate,omitempty"`
+	DealName            *string                   `json:"dealname,omitempty"`
+	DealStage           *string                   `json:"dealstage,omitempty"`
+	ForecastAmount      *go_types.Float64String   `json:"hs_forecast_amount,omitempty"`
+	ForecastProbability *go_types.Float64String   `json:"hs_forecast_probability,omitempty"`
+	LastUpdated         *h_types.DateTimeMSString `json:"notes_last_updated,omitempty"`
+	OwnerId             *string                   `json:"hubspot_owner_id,omitempty"`
 }
 
 type DealProperty string
