@@ -44,8 +44,8 @@ type AssociationTypeV4 struct {
 }
 
 type BatchGetAssociationsConfig struct {
-	FromObjectType ObjectType
-	ToObjectType   ObjectType
+	FromObjectType string
+	ToObjectType   string
 	Ids            []string
 }
 
@@ -104,19 +104,19 @@ func (service *Service) BatchGetAssociations(config *BatchGetAssociationsConfig)
 }
 
 type CreateAssociationConfig struct {
-	FromObjectType   ObjectType
+	FromObjectType   string
 	FromObjectId     string
-	ToObjectType     ObjectType
+	ToObjectType     string
 	ToObjectId       string
 	AssociationTypes []AssociationTypeV4
 }
 
 type CreateAssociationResponse struct {
-	FromObjectTypeId ObjectType `json:"fromObjectTypeId"`
-	FromObjectId     int64      `json:"fromObjectId"`
-	ToObjectTypeId   ObjectType `json:"toObjectTypeId"`
-	ToObjectId       int64      `json:"toObjectId"`
-	Labels           []string   `json:"labels"`
+	FromObjectTypeId string   `json:"fromObjectTypeId"`
+	FromObjectId     int64    `json:"fromObjectId"`
+	ToObjectTypeId   string   `json:"toObjectTypeId"`
+	ToObjectId       int64    `json:"toObjectId"`
+	Labels           []string `json:"labels"`
 }
 
 func (service *Service) CreateAssociation(config *CreateAssociationConfig) (*CreateAssociationResponse, *errortools.Error) {
@@ -144,9 +144,9 @@ func (service *Service) CreateAssociation(config *CreateAssociationConfig) (*Cre
 }
 
 type GetAssociationsConfig struct {
-	FromObjectType ObjectType
+	FromObjectType string
 	FromObjectId   string
-	ToObjectType   ObjectType
+	ToObjectType   string
 }
 
 type GetAssociationsResponse struct {
@@ -180,9 +180,9 @@ func (service *Service) GetAssociations(config *GetAssociationsConfig) (*GetAsso
 }
 
 type DeleteAssociationConfig struct {
-	FromObjectType ObjectType
+	FromObjectType string
 	FromObjectId   string
-	ToObjectType   ObjectType
+	ToObjectType   string
 	ToObjectId     string
 }
 
@@ -207,8 +207,8 @@ func (service *Service) DeleteAssociation(config *DeleteAssociationConfig) *erro
 }
 
 type GetAssociationTypesConfig struct {
-	FromObjectType ObjectType
-	ToObjectType   ObjectType
+	FromObjectType string
+	ToObjectType   string
 	Ids            []string
 }
 

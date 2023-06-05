@@ -81,7 +81,7 @@ func (service *Service) GetPipelines(config *GetPipelinesConfig) (*[]Pipeline, *
 }
 
 type CreatePipelineConfig struct {
-	ObjectType PipelineObjectType
+	ObjectType string
 	Pipeline   *Pipeline
 }
 
@@ -105,7 +105,7 @@ func (service *Service) CreatePipeline(config *CreatePipelineConfig) (*Pipeline,
 }
 
 type UpdatePipelineConfig struct {
-	ObjectType PipelineObjectType
+	ObjectType string
 	PipelineId string
 	Pipeline   *Pipeline
 }

@@ -212,7 +212,7 @@ type GetCompaniesConfig struct {
 	Limit        *uint
 	After        *string
 	Properties   *[]string
-	Associations *[]ObjectType
+	Associations *[]string
 	Archived     *bool
 }
 
@@ -434,7 +434,7 @@ type GetCompanyConfig struct {
 	CompanyId        string
 	Properties       *[]CompanyProperty
 	CustomProperties *[]string
-	Associations     *[]ObjectType
+	Associations     *[]string
 }
 
 // GetCompany returns a specific company

@@ -29,6 +29,7 @@ type deal struct {
 	Associations          map[string]AssociationsSet   `json:"associations"`
 	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
+
 type Deal struct {
 	Id                    string
 	Properties            DealProperties
@@ -39,6 +40,7 @@ type Deal struct {
 	Associations          map[string]AssociationsSet
 	PropertiesWithHistory map[string][]PropertyHistory
 }
+
 type PropertyHistory struct {
 	Value           string    `json:"value"`
 	Timestamp       time.Time `json:"timestamp"`
@@ -199,7 +201,7 @@ type GetDealsConfig struct {
 	Properties            *[]DealProperty
 	CustomProperties      *[]string
 	PropertiesWithHistory *[]string
-	Associations          *[]ObjectType
+	Associations          *[]string
 	Archived              *bool
 }
 

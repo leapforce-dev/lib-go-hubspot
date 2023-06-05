@@ -343,7 +343,7 @@ type GetContactsConfig struct {
 	Limit        *uint
 	After        *string
 	Properties   *[]string
-	Associations *[]ObjectType
+	Associations *[]string
 	Archived     *bool
 }
 
@@ -565,7 +565,7 @@ type GetContactConfig struct {
 	ContactId        string
 	Properties       *[]ContactProperty
 	CustomProperties *[]string
-	Associations     *[]ObjectType
+	Associations     *[]string
 }
 
 // GetContact returns a specific contact
