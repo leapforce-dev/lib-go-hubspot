@@ -17,12 +17,12 @@ type CustomObjectsResponse struct {
 }
 
 type CustomObject struct {
-	Id               string
-	CustomProperties map[string]string
-	CreatedAt        h_types.DateTimeString
-	UpdatedAt        h_types.DateTimeString
-	Archived         bool
-	Associations     map[string]AssociationsSet
+	Id               string                     `json:"id"`
+	CustomProperties map[string]string          `json:"properties"`
+	CreatedAt        h_types.DateTimeString     `json:"createdAt"`
+	UpdatedAt        h_types.DateTimeString     `json:"updatedAt"`
+	Archived         bool                       `json:"archived"`
+	Associations     map[string]AssociationsSet `json:"associations"`
 }
 
 type GetCustomObjectsConfig struct {
