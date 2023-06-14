@@ -20,7 +20,7 @@ const (
 	apiUrlAccountInfo  string = "https://api.hubapi.com/account-info"
 	defaultRedirectUrl string = "http://localhost:8080/oauth/redirect"
 	authUrl            string = "https://app-eu1.hubspot.com/oauth/authorize"
-	//tokenUrl           string = "https://api.hubapi.com/oauth/v1/token"
+	//tokenUrl           string = "https://api.pinterest.com/v5/oauth/token"
 	tokenHttpMethod string = http.MethodPost
 )
 

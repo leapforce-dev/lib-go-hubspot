@@ -5,28 +5,35 @@ import (
 	"fmt"
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
 type EmailsResponse struct {
-	Results []Email `json:"results"`
+	Results []email `json:"results"`
 	Paging  *Paging `json:"paging"`
 }
 
-type Email struct {
-	Id           string             `json:"id,omitempty"`
-	Properties   EmailProperties    `json:"properties"`
-	CreatedAt    *time.Time         `json:"createdAt,omitempty"`
-	UpdatedAt    *time.Time         `json:"updatedAt,omitempty"`
-	Archived     *bool              `json:"archived,omitempty"`
-	Associations *EmailAssociations `json:"associations,omitempty"`
+type email struct {
+	Id           string                     `json:"id"`
+	Properties   json.RawMessage            `json:"properties"`
+	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
+	Archived     bool                       `json:"archived"`
+	Associations map[string]AssociationsSet `json:"associations"`
 }
 
-type EmailUpdate struct {
-	Properties   EmailProperties     `json:"properties"`
-	Associations *[]EmailAssociation `json:"associations,omitempty"`
+type Email struct {
+	Id               string
+	Properties       EmailProperties
+	CustomProperties map[string]string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	Archived         bool
+	Associations     map[string]AssociationsSet
 }
 
 type EmailAssociations struct {
@@ -55,20 +62,20 @@ func NewEmailAssociation(toId string, category string, typeId int64) EmailAssoci
 }
 
 type EmailProperties struct {
-	OwnerId         string    `json:"hubspot_owner_id"`
-	AttachmentIds   string    `json:"hs_attachment_ids"`
-	Direction       string    `json:"hs_email_direction"`
-	Headers         string    `json:"hs_email_headers,omitempty"`
-	SenderEmail     string    `json:"hs_email_sender_email,omitempty"`
-	SenderFirstname string    `json:"hs_email_sender_firstname,omitempty"`
-	SenderLastname  string    `json:"hs_email_sender_lastname,omitempty"`
-	ToEmail         string    `json:"hs_email_to_email,omitempty"`
-	ToFirstname     string    `json:"hs_email_to_firstname,omitempty"`
-	ToLastname      string    `json:"hs_email_to_lastname,omitempty"`
-	Status          string    `json:"hs_email_status"`
-	Subject         string    `json:"hs_email_subject"`
-	Text            string    `json:"hs_email_text"`
-	Timestamp       time.Time `json:"hs_timestamp"`
+	OwnerId         *string    `json:"hubspot_owner_id"`
+	AttachmentIds   *string    `json:"hs_attachment_ids"`
+	Direction       *string    `json:"hs_email_direction"`
+	Headers         *string    `json:"hs_email_headers,omitempty"`
+	SenderEmail     *string    `json:"hs_email_sender_email,omitempty"`
+	SenderFirstname *string    `json:"hs_email_sender_firstname,omitempty"`
+	SenderLastname  *string    `json:"hs_email_sender_lastname,omitempty"`
+	ToEmail         *string    `json:"hs_email_to_email,omitempty"`
+	ToFirstname     *string    `json:"hs_email_to_firstname,omitempty"`
+	ToLastname      *string    `json:"hs_email_to_lastname,omitempty"`
+	Status          *string    `json:"hs_email_status"`
+	Subject         *string    `json:"hs_email_subject"`
+	Text            *string    `json:"hs_email_text"`
+	Timestamp       *time.Time `json:"hs_timestamp"`
 }
 
 type EmailHeaderItem struct {
@@ -86,7 +93,8 @@ type EmailHeaders struct {
 
 func (e *EmailProperties) SetHeaders(headers *EmailHeaders) error {
 	if headers == nil {
-		e.Headers = ""
+		h := ""
+		e.Headers = &h
 		return nil
 	}
 
@@ -95,32 +103,19 @@ func (e *EmailProperties) SetHeaders(headers *EmailHeaders) error {
 		return err
 	}
 
-	e.Headers = string(b)
+	h := string(b)
+
+	e.Headers = &h
 
 	return nil
 }
 
-func (service *Service) CreateEmail(email *EmailUpdate) (*Email, *errortools.Error) {
-	var newEmail Email
-
-	requestConfig := go_http.RequestConfig{
-		Method:        http.MethodPost,
-		Url:           service.urlV4("objects/emails"),
-		BodyModel:     email,
-		ResponseModel: &newEmail,
-	}
-
-	_, _, e := service.httpRequest(&requestConfig)
-	if e != nil {
-		return nil, e
-	}
-
-	return &newEmail, nil
-}
-
 type ListEmailsConfig struct {
-	Limit *uint
-	After *string
+	Limit        *uint
+	After        *string
+	Properties   *[]string
+	Associations *[]string
+	Archived     *bool
 }
 
 func (service *Service) ListEmails(config *ListEmailsConfig) (*[]Email, *errortools.Error) {
@@ -135,6 +130,21 @@ func (service *Service) ListEmails(config *ListEmailsConfig) (*[]Email, *errorto
 		}
 		if config.After != nil {
 			after = *config.After
+		}
+		if config.Properties != nil {
+			values.Set("properties", strings.Join(*config.Properties, ","))
+		}
+		if config.Associations != nil {
+			if len(*config.Associations) > 0 {
+				_associations := []string{}
+				for _, a := range *config.Associations {
+					_associations = append(_associations, string(a))
+				}
+				values.Set("associations", strings.Join(_associations, ","))
+			}
+		}
+		if config.Archived != nil {
+			values.Set("archived", fmt.Sprintf("%v", *config.Archived))
 		}
 	}
 
@@ -158,7 +168,13 @@ func (service *Service) ListEmails(config *ListEmailsConfig) (*[]Email, *errorto
 			return nil, e
 		}
 
-		emails = append(emails, emailsResponse.Results...)
+		for _, em := range emailsResponse.Results {
+			email_, e := getEmail(&em, config.Properties)
+			if e != nil {
+				return nil, e
+			}
+			emails = append(emails, *email_)
+		}
 
 		if config != nil {
 			if config.After != nil { // explicit after parameter requested
@@ -178,6 +194,42 @@ func (service *Service) ListEmails(config *ListEmailsConfig) (*[]Email, *errorto
 	}
 
 	return &emails, nil
+}
+
+func getEmail(email *email, customProperties *[]string) (*Email, *errortools.Error) {
+	email_ := Email{
+		Id:               email.Id,
+		CreatedAt:        email.CreatedAt.Value(),
+		UpdatedAt:        email.UpdatedAt.Value(),
+		Archived:         email.Archived,
+		Associations:     email.Associations,
+		CustomProperties: make(map[string]string),
+	}
+	if email.Properties != nil {
+		p := EmailProperties{}
+		err := json.Unmarshal(email.Properties, &p)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+		email_.Properties = p
+	}
+
+	if customProperties != nil {
+		p1 := make(map[string]string)
+		err := json.Unmarshal(email.Properties, &p1)
+		if err != nil {
+			return nil, errortools.ErrorMessage(err)
+		}
+
+		for _, cp := range *customProperties {
+			value, ok := p1[cp]
+			if ok {
+				email_.CustomProperties[cp] = value
+			}
+		}
+	}
+
+	return &email_, nil
 }
 
 func (service *Service) BatchDeleteEmails(emailIds []string) *errortools.Error {
@@ -223,4 +275,69 @@ func (service *Service) batchDeleteEmails(emailIds []string) *errortools.Error {
 
 	_, _, e := service.httpRequest(&requestConfig)
 	return e
+}
+
+type CreateEmailConfig struct {
+	Properties       EmailProperties
+	CustomProperties map[string]string
+}
+
+func (service *Service) CreateEmail(config *CreateEmailConfig) (*Email, *errortools.Error) {
+	endpoint := "objects/emails"
+	email := Email{}
+
+	body, e := emailPropertiesBody(config.Properties, config.CustomProperties)
+	if e != nil {
+		return nil, e
+	}
+
+	properties := struct {
+		Properties map[string]string `json:"properties"`
+	}{
+		body,
+	}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.urlV4(endpoint),
+		BodyModel:     properties,
+		ResponseModel: &email,
+	}
+
+	_, _, e = service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	return &email, nil
+}
+
+func emailPropertiesBody(properties EmailProperties, customProperties map[string]string) (map[string]string, *errortools.Error) {
+	// marshal
+	b, err := json.Marshal(properties)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+	// unmarshal to map
+	m := make(map[string]string)
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return nil, errortools.ErrorMessage(err)
+	}
+
+	if customProperties == nil {
+		return m, nil
+	}
+	if len(customProperties) == 0 {
+		return m, nil
+	}
+
+	// append custom properties to map
+	for key, value := range customProperties {
+		if _, ok := m[key]; !ok {
+			m[key] = value
+		}
+	}
+
+	return m, nil
 }
