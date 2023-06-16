@@ -165,16 +165,18 @@ func (service *Service) tryHttpRequest(requestConfig *go_http.RequestConfig, isR
 	}
 
 	if e != nil {
-		if response.StatusCode == http.StatusTooManyRequests && !isRetry {
-			remaining := response.Header["X-Hubspot-Ratelimit-Daily-Remaining"]
+		if response != nil {
+			if response.StatusCode == http.StatusTooManyRequests && !isRetry {
+				remaining := response.Header["X-Hubspot-Ratelimit-Daily-Remaining"]
 
-			if len(remaining) == 1 {
-				if remaining[0] != "0" {
-					// try to catch the per second rate limit, but try this only once (isRetry)
-					fmt.Println("waiting 1 second...")
-					time.Sleep(time.Second)
+				if len(remaining) == 1 {
+					if remaining[0] != "0" {
+						// try to catch the per second rate limit, but try this only once (isRetry)
+						fmt.Println("waiting 1 second...")
+						time.Sleep(time.Second)
 
-					return service.tryHttpRequest(requestConfig, true)
+						return service.tryHttpRequest(requestConfig, true)
+					}
 				}
 			}
 		}
