@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/leapforce-libraries/go_errortools v0.0.0-20230306211452-9ccee0cdafe8
 	github.com/leapforce-libraries/go_http v0.0.0-20230420114702-86cc77fcf983
-	github.com/leapforce-libraries/go_oauth2 v0.0.0-20230517200805-5f7fa4291c9d
+	github.com/leapforce-libraries/go_oauth2 v0.0.0-20230612120800-6d49597ca188
 	github.com/leapforce-libraries/go_types v0.0.0-20230425074203-34c9cae0aa4e
 )
 
