@@ -11,4 +11,5 @@ const (
 	ObjectTypeProducts            ObjectType = "products"
 	ObjectTypeTickets             ObjectType = "tickets"
 	ObjectTypeQuotes              ObjectType = "quotes"
+	ObjectTypeNotes               ObjectType = "notes"
 )

@@ -32,6 +32,15 @@ type AssociationV4 struct {
 	} `json:"to"`
 }
 
+type AssociationTo struct {
+	To    AssociationToTo     `json:"to"`
+	Types []AssociationTypeV4 `json:"types"`
+}
+
+type AssociationToTo struct {
+	Id string `json:"id"`
+}
+
 type AssociationType struct {
 	Category string  `json:"category"`
 	TypeId   int64   `json:"typeId"`
