@@ -13,6 +13,7 @@ import (
 
 const (
 	apiName            string = "Hubspot"
+	apiUrlContacts     string = "https://api.hubapi.com/contacts"
 	apiUrlEngagements  string = "https://api.hubapi.com/engagements"
 	apiUrlFiles        string = "https://api.hubapi.com/files"
 	apiUrlCrm          string = "https://api.hubapi.com/crm"
@@ -201,6 +202,10 @@ func (service *Service) AuthorizeUrl(scope string) string {
 
 func (service *Service) GetTokenFromCode(r *http.Request) *errortools.Error {
 	return service.oAuth2Service.GetTokenFromCode(r, nil)
+}
+
+func (service *Service) urlContacts(path string) string {
+	return fmt.Sprintf("%s/v1/%s", apiUrlContacts, path)
 }
 
 func (service *Service) urlEngagements(path string) string {
