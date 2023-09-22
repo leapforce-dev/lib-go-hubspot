@@ -280,7 +280,7 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 				UpdatedAt:        c.UpdatedAt,
 				Archived:         c.Archived,
 				Associations:     c.Associations,
-				CustomProperties: make(map[string]string),
+				Properties: make(map[string]string),
 			}
 			if c.Properties == nil {
 				continue
@@ -293,17 +293,17 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 			}
 			company_.Properties = p
 
-			if config.CustomProperties != nil {
+			if config.Properties != nil {
 				p1 := make(map[string]string)
 				err := json.Unmarshal(c.Properties, &p1)
 				if err != nil {
 					return nil, errortools.ErrorMessage(err)
 				}
 
-				for _, cp := range *config.CustomProperties {
+				for _, cp := range *config.Properties {
 					value, ok := p1[cp]
 					if ok {
-						company_.CustomProperties[cp] = value
+						company_.Properties[cp] = value
 					}
 				}
 			}*/

@@ -411,7 +411,7 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 				UpdatedAt:        c.UpdatedAt,
 				Archived:         c.Archived,
 				Associations:     c.Associations,
-				CustomProperties: make(map[string]string),
+				Properties: make(map[string]string),
 			}
 			if c.Properties == nil {
 				continue
@@ -424,17 +424,17 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 			}
 			contact_.Properties = p
 
-			if config.CustomProperties != nil {
+			if config.Properties != nil {
 				p1 := make(map[string]string)
 				err := json.Unmarshal(c.Properties, &p1)
 				if err != nil {
 					return nil, errortools.ErrorMessage(err)
 				}
 
-				for _, cp := range *config.CustomProperties {
+				for _, cp := range *config.Properties {
 					value, ok := p1[cp]
 					if ok {
-						contact_.CustomProperties[cp] = value
+						contact_.Properties[cp] = value
 					}
 				}
 			}*/
