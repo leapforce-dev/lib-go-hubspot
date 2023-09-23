@@ -38,22 +38,30 @@ type PropertiesResponse struct {
 
 // Property stores Property from Service
 type Property struct {
-	Name                 *string            `json:"name"`
-	Label                *string            `json:"label"`
-	Type                 *PropertyType      `json:"type"`
-	FieldType            *PropertyFieldType `json:"fieldType"`
-	Description          *string            `json:"description,omitempty"`
-	GroupName            *string            `json:"groupName"`
-	ReferencedObjectType *string            `json:"referencedObjectType,omitempty"`
-	DisplayOrder         *int64             `json:"displayOrder,omitempty"`
-	Calculated           *bool              `json:"calculated,omitempty"`
-	ExternalOptions      *bool              `json:"externalOption,omitemptys"`
-	Archived             *bool              `json:"archived,omitempty"`
-	HasUniqueValue       *bool              `json:"hasUniqueValue,omitempty"`
-	Hidden               *bool              `json:"hidden,omitempty"`
-	HubspotDefined       *bool              `json:"hubspotDefined,omitempty"`
-	FormField            *bool              `json:"formField,omitempty"`
-	Options              *[]PropertyOption  `json:"options,omitempty"`
+	Name                 *string                       `json:"name"`
+	Label                *string                       `json:"label"`
+	Type                 *PropertyType                 `json:"type"`
+	FieldType            *PropertyFieldType            `json:"fieldType"`
+	Description          *string                       `json:"description,omitempty"`
+	GroupName            *string                       `json:"groupName"`
+	ReferencedObjectType *string                       `json:"referencedObjectType,omitempty"`
+	DisplayOrder         *int64                        `json:"displayOrder,omitempty"`
+	Calculated           *bool                         `json:"calculated,omitempty"`
+	ExternalOptions      *bool                         `json:"externalOption,omitemptys"`
+	Archived             *bool                         `json:"archived,omitempty"`
+	HasUniqueValue       *bool                         `json:"hasUniqueValue,omitempty"`
+	Hidden               *bool                         `json:"hidden,omitempty"`
+	HubspotDefined       *bool                         `json:"hubspotDefined,omitempty"`
+	ModificationMetadata *PropertyModificationMetadata `json:"modificationMetadata,omitempty"`
+	FormField            *bool                         `json:"formField,omitempty"`
+	Options              *[]PropertyOption             `json:"options,omitempty"`
+}
+
+type PropertyModificationMetadata struct {
+	Archivable         bool `json:"archivable"`
+	ReadOnlyDefinition bool `json:"readOnlyDefinition"`
+	ReadOnlyOptions    bool `json:"readOnlyOptions"`
+	ReadOnlyValue      bool `json:"readOnlyValue"`
 }
 
 type PropertyOption struct {

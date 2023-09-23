@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	errortools "github.com/leapforce-libraries/go_errortools"
+	go_http "github.com/leapforce-libraries/go_http"
 	h_types "github.com/leapforce-libraries/go_hubspot/types"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 type FilesResponse struct {
@@ -18,7 +21,6 @@ type FilesResponse struct {
 }
 
 // File stores File from Service
-//
 type File struct {
 	Id                string                 `json:"id"`
 	CreatedAt         h_types.DateTimeString `json:"createdAt"`
@@ -58,7 +60,6 @@ type UploadFileOptions struct {
 }
 
 // UploadFile uploads a file to Hubspot
-//
 func (service *Service) UploadFile(config *UploadFileConfig) (*File, *errortools.Error) {
 	endpoint := "files"
 
@@ -145,6 +146,42 @@ func (service *Service) UploadFile(config *UploadFileConfig) (*File, *errortools
 		if service.errorResponse.Status == "error" {
 			return nil, errortools.ErrorMessagef("error: %s", service.errorResponse.Message)
 		}
+	}
+
+	return &file, nil
+}
+
+type GetFileConfig struct {
+	FileId     string
+	Properties *[]string
+}
+
+// GetFile retrieves a file from Hubspot
+func (service *Service) GetFile(config *GetFileConfig) (*File, *errortools.Error) {
+	if config == nil {
+		return nil, errortools.ErrorMessage("GetFileConfig must not be a nil pointer")
+	}
+
+	values := url.Values{}
+	endpoint := "files"
+
+	if config.Properties != nil {
+		if len(*config.Properties) > 0 {
+			values.Set("properties", strings.Join(*config.Properties, ","))
+		}
+	}
+
+	var file File
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodGet,
+		Url:           service.urlFiles(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+		ResponseModel: &file,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
 	}
 
 	return &file, nil
