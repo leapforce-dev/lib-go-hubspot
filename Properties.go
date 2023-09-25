@@ -58,10 +58,10 @@ type Property struct {
 }
 
 type PropertyModificationMetadata struct {
-	Archivable         bool `json:"archivable"`
-	ReadOnlyDefinition bool `json:"readOnlyDefinition"`
-	ReadOnlyOptions    bool `json:"readOnlyOptions"`
-	ReadOnlyValue      bool `json:"readOnlyValue"`
+	Archivable         bool  `json:"archivable"`
+	ReadOnlyDefinition bool  `json:"readOnlyDefinition"`
+	ReadOnlyOptions    *bool `json:"readOnlyOptions,omitempty"`
+	ReadOnlyValue      bool  `json:"readOnlyValue"`
 }
 
 type PropertyOption struct {
