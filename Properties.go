@@ -47,7 +47,7 @@ type Property struct {
 	ReferencedObjectType *string                       `json:"referencedObjectType,omitempty"`
 	DisplayOrder         *int64                        `json:"displayOrder,omitempty"`
 	Calculated           *bool                         `json:"calculated,omitempty"`
-	ExternalOptions      *bool                         `json:"externalOption,omitemptys"`
+	ExternalOptions      *bool                         `json:"externalOptions,omitempty"`
 	Archived             *bool                         `json:"archived,omitempty"`
 	HasUniqueValue       *bool                         `json:"hasUniqueValue,omitempty"`
 	Hidden               *bool                         `json:"hidden,omitempty"`
