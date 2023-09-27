@@ -26,16 +26,16 @@ type Meeting struct {
 	Associations map[string]AssociationsSet `json:"associations"`
 }
 
-type GetMeetingsConfig struct {
-	Limit            *uint
-	After            *string
-	CustomProperties *[]string
-	Associations     *[]string
-	Archived         *bool
+type ListMeetingsConfig struct {
+	Limit        *uint
+	After        *string
+	Properties   *[]string
+	Associations *[]string
+	Archived     *bool
 }
 
-// GetMeetings returns all meetings
-func (service *Service) GetMeetings(config *GetMeetingsConfig) (*[]Meeting, *errortools.Error) {
+// ListMeetings returns all meetings
+func (service *Service) ListMeetings(config *ListMeetingsConfig) (*[]Meeting, *errortools.Error) {
 	values := url.Values{}
 	endpoint := "objects/meetings"
 
@@ -46,9 +46,9 @@ func (service *Service) GetMeetings(config *GetMeetingsConfig) (*[]Meeting, *err
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
 		var _properties []string
-		if config.CustomProperties != nil {
-			if len(*config.CustomProperties) > 0 {
-				_properties = append(_properties, *config.CustomProperties...)
+		if config.Properties != nil {
+			if len(*config.Properties) > 0 {
+				_properties = append(_properties, *config.Properties...)
 			}
 		}
 		if len(_properties) > 0 {
@@ -139,8 +139,8 @@ func (service *Service) CreateMeeting(config *CreateMeetingConfig) (*Meeting, *e
 }
 
 type UpdateMeetingConfig struct {
-	MeetingId        string
-	CustomProperties map[string]string
+	MeetingId  string
+	Properties map[string]string
 }
 
 func (service *Service) UpdateMeeting(config *UpdateMeetingConfig) (*Meeting, *errortools.Error) {
@@ -149,8 +149,8 @@ func (service *Service) UpdateMeeting(config *UpdateMeetingConfig) (*Meeting, *e
 
 	var properties = make(map[string]string)
 
-	if config.CustomProperties != nil {
-		for key, value := range config.CustomProperties {
+	if config.Properties != nil {
+		for key, value := range config.Properties {
 			properties[key] = value
 		}
 	}
