@@ -175,7 +175,7 @@ func (service *Service) GetFile(config *GetFileConfig) (*File, *errortools.Error
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodGet,
-		Url:           service.urlFiles(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
+		Url:           service.urlFiles(fmt.Sprintf("%s/%s?%s", endpoint, config.FileId, values.Encode())),
 		ResponseModel: &file,
 	}
 
