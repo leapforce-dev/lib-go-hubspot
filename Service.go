@@ -208,10 +208,6 @@ func (service *Service) urlContacts(path string) string {
 	return fmt.Sprintf("%s/v1/%s", apiUrlContacts, path)
 }
 
-func (service *Service) urlEngagements(path string) string {
-	return fmt.Sprintf("%s/v1/%s", apiUrlEngagements, path)
-}
-
 func (service *Service) urlFiles(path string) string {
 	return fmt.Sprintf("%s/v3/%s", apiUrlFiles, path)
 }
