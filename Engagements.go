@@ -14,8 +14,13 @@ import (
 type EngagementType string
 
 const (
-	EngagementTypeMeeting EngagementType = "meeting"
-	EngagementTypeTask    EngagementType = "task"
+	EngagementTypeCall          EngagementType = "call"
+	EngagementTypeCommunication EngagementType = "communication"
+	EngagementTypeEmail         EngagementType = "email"
+	EngagementTypeMeeting       EngagementType = "meeting"
+	EngagementTypeNote          EngagementType = "note"
+	EngagementTypePostalMail    EngagementType = "postal_mail"
+	EngagementTypeTask          EngagementType = "task"
 )
 
 type EngagementsResponse struct {
