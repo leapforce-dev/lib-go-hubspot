@@ -247,12 +247,12 @@ func (service *Service) SearchContact(config *SearchContactConfig) (*[]Contact, 
 		return nil, e
 	}
 
-	customProperties := []string{}
+	properties := []string{}
 	if config.FilterGroups != nil {
 		for _, filterGroup := range *config.FilterGroups {
 			for _, filter := range *filterGroup.Filters {
 				if filter.isCustom {
-					customProperties = append(customProperties, filter.PropertyName)
+					properties = append(properties, filter.PropertyName)
 				}
 			}
 		}

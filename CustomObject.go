@@ -17,19 +17,19 @@ type CustomObjectsResponse struct {
 }
 
 type CustomObject struct {
-	Id               string                     `json:"id"`
-	CustomProperties map[string]string          `json:"properties"`
-	CreatedAt        h_types.DateTimeString     `json:"createdAt"`
-	UpdatedAt        h_types.DateTimeString     `json:"updatedAt"`
-	Archived         bool                       `json:"archived"`
-	Associations     map[string]AssociationsSet `json:"associations"`
+	Id           string                     `json:"id"`
+	Properties   map[string]string          `json:"properties"`
+	CreatedAt    h_types.DateTimeString     `json:"createdAt"`
+	UpdatedAt    h_types.DateTimeString     `json:"updatedAt"`
+	Archived     bool                       `json:"archived"`
+	Associations map[string]AssociationsSet `json:"associations"`
 }
 
 type GetCustomObjectsConfig struct {
 	ObjectType            string
 	Limit                 *uint
 	After                 *string
-	CustomProperties      *[]string
+	Properties            *[]string
 	PropertiesWithHistory *[]string
 	Associations          *[]string
 	Archived              *bool
@@ -45,9 +45,9 @@ func (service *Service) GetCustomObjects(config *GetCustomObjectsConfig) (*[]Cus
 			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
 		}
 		_properties := []string{}
-		if config.CustomProperties != nil {
-			if len(*config.CustomProperties) > 0 {
-				_properties = append(_properties, *config.CustomProperties...)
+		if config.Properties != nil {
+			if len(*config.Properties) > 0 {
+				_properties = append(_properties, *config.Properties...)
 			}
 		}
 		if config.PropertiesWithHistory != nil {
@@ -118,8 +118,8 @@ func (service *Service) GetCustomObjects(config *GetCustomObjectsConfig) (*[]Cus
 }
 
 type CreateCustomObjectConfig struct {
-	ObjectType       string
-	CustomProperties map[string]string
+	ObjectType string
+	Properties map[string]string
 }
 
 func (service *Service) CreateCustomObject(config *CreateCustomObjectConfig) (*CustomObject, *errortools.Error) {
@@ -128,8 +128,8 @@ func (service *Service) CreateCustomObject(config *CreateCustomObjectConfig) (*C
 
 	var properties = make(map[string]string)
 
-	if config.CustomProperties != nil {
-		for key, value := range config.CustomProperties {
+	if config.Properties != nil {
+		for key, value := range config.Properties {
 			properties[key] = value
 		}
 	}
@@ -156,9 +156,9 @@ func (service *Service) CreateCustomObject(config *CreateCustomObjectConfig) (*C
 }
 
 type UpdateCustomObjectConfig struct {
-	ObjectType       string
-	CustomObjectId   string
-	CustomProperties map[string]string
+	ObjectType     string
+	CustomObjectId string
+	Properties     map[string]string
 }
 
 func (service *Service) UpdateCustomObject(config *UpdateCustomObjectConfig) (*CustomObject, *errortools.Error) {
@@ -168,8 +168,8 @@ func (service *Service) UpdateCustomObject(config *UpdateCustomObjectConfig) (*C
 
 	var properties = make(map[string]string)
 
-	if config.CustomProperties != nil {
-		for key, value := range config.CustomProperties {
+	if config.Properties != nil {
+		for key, value := range config.Properties {
 			properties[key] = value
 		}
 	}
