@@ -216,15 +216,6 @@ func (service *Service) GetCompany(config *GetCompanyConfig) (*Company, *errorto
 	return &company, nil
 }
 
-type SearchCompanyConfig struct {
-	Limit        *uint          `json:"limit,omitempty"`
-	After        *string        `json:"after,omitempty"`
-	FilterGroups *[]FilterGroup `json:"filterGroups,omitempty"`
-	Sorts        *[]string      `json:"sorts,omitempty"`
-	Query        *string        `json:"query,omitempty"`
-	Properties   *[]string      `json:"properties,omitempty"`
-}
-
 type FilterGroup struct {
 	Filters *[]filter `json:"filters"`
 }
@@ -265,8 +256,8 @@ type filter struct {
 	isCustom     bool   `json:"-"`
 }
 
-// SearchCompany returns a specific company
-func (service *Service) SearchCompany(config *SearchCompanyConfig) (*[]Company, *errortools.Error) {
+// SearchCompanies returns a specific company
+func (service *Service) SearchCompanies(config *SearchObjectsConfig) (*[]Company, *errortools.Error) {
 	if config == nil {
 		return nil, errortools.ErrorMessage("Config is nil")
 	}

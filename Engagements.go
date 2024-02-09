@@ -235,3 +235,64 @@ func (service *Service) batchDeleteEngagements(engagementType EngagementType, en
 	_, _, e := service.httpRequest(&requestConfig)
 	return e
 }
+
+// SearchEngagements returns a specific engagement
+func (service *Service) SearchEngagements(objectType ObjectType, config *SearchObjectsConfig) (*[]Engagement, *errortools.Error) {
+	if config == nil {
+		return nil, errortools.ErrorMessage("Config is nil")
+	}
+
+	endpoint := fmt.Sprintf("objects/%s/search", objectType)
+
+	engagementsResponse := EngagementsResponse{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodPost,
+		Url:           service.urlCrm(endpoint),
+		BodyModel:     config,
+		ResponseModel: &engagementsResponse,
+	}
+
+	_, _, e := service.httpRequest(&requestConfig)
+	if e != nil {
+		return nil, e
+	}
+
+	after := config.After
+
+	var engagements []Engagement
+
+	for {
+		engagementsResponse := EngagementsResponse{}
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(endpoint),
+			BodyModel:     config,
+			ResponseModel: &engagementsResponse,
+		}
+
+		_, _, e := service.httpRequest(&requestConfig)
+		if e != nil {
+			return nil, e
+		}
+
+		engagements = append(engagements, engagementsResponse.Results...)
+
+		if after != nil { // explicit after parameter requested
+			break
+		}
+
+		if engagementsResponse.Paging == nil {
+			break
+		}
+
+		if engagementsResponse.Paging.Next.After == "" {
+			break
+		}
+
+		config.After = &engagementsResponse.Paging.Next.After
+	}
+
+	return &engagements, nil
+}

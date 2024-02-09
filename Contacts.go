@@ -216,7 +216,7 @@ func (service *Service) GetContact(config *GetContactConfig) (*Contact, *errorto
 	return &contact, nil
 }
 
-type SearchContactConfig struct {
+type SearchObjectsConfig struct {
 	Limit        *uint          `json:"limit,omitempty"`
 	After        *string        `json:"after,omitempty"`
 	FilterGroups *[]FilterGroup `json:"filterGroups,omitempty"`
@@ -226,7 +226,7 @@ type SearchContactConfig struct {
 }
 
 // SearchContact returns a specific contact
-func (service *Service) SearchContact(config *SearchContactConfig) (*[]Contact, *errortools.Error) {
+func (service *Service) SearchContact(config *SearchObjectsConfig) (*[]Contact, *errortools.Error) {
 	if config == nil {
 		return nil, errortools.ErrorMessage("Config is nil")
 	}
