@@ -117,33 +117,14 @@ func (service *Service) GetCustomObjects(config *GetCustomObjectsConfig) (*[]Cus
 	return &customObjects, nil
 }
 
-type CreateCustomObjectConfig struct {
-	ObjectType string
-	Properties map[string]string
-}
-
-func (service *Service) CreateCustomObject(config *CreateCustomObjectConfig) (*CustomObject, *errortools.Error) {
+func (service *Service) CreateCustomObject(config *CreateObjectConfig) (*CustomObject, *errortools.Error) {
 	endpoint := fmt.Sprintf("objects/%s", config.ObjectType)
 	customObject := CustomObject{}
-
-	var properties = make(map[string]string)
-
-	if config.Properties != nil {
-		for key, value := range config.Properties {
-			properties[key] = value
-		}
-	}
-
-	var properties_ = struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		properties,
-	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPost,
 		Url:           service.urlCrm(endpoint),
-		BodyModel:     properties_,
+		BodyModel:     config,
 		ResponseModel: &customObject,
 	}
 
@@ -155,35 +136,15 @@ func (service *Service) CreateCustomObject(config *CreateCustomObjectConfig) (*C
 	return &customObject, nil
 }
 
-type UpdateCustomObjectConfig struct {
-	ObjectType     string
-	CustomObjectId string
-	Properties     map[string]string
-}
-
-func (service *Service) UpdateCustomObject(config *UpdateCustomObjectConfig) (*CustomObject, *errortools.Error) {
+func (service *Service) UpdateCustomObject(config *UpdateObjectConfig) (*CustomObject, *errortools.Error) {
 	endpoint := fmt.Sprintf("objects/%s", config.ObjectType)
 
 	customObject := CustomObject{}
 
-	var properties = make(map[string]string)
-
-	if config.Properties != nil {
-		for key, value := range config.Properties {
-			properties[key] = value
-		}
-	}
-
-	var properties_ = struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		properties,
-	}
-
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.CustomObjectId)),
-		BodyModel:     properties_,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ObjectId)),
+		BodyModel:     config,
 		ResponseModel: &customObject,
 	}
 

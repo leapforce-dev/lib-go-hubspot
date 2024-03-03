@@ -127,24 +127,14 @@ func (service *Service) GetDeals(config *GetDealsConfig) (*[]Deal, *errortools.E
 	return &deals, nil
 }
 
-type CreateDealConfig struct {
-	Properties map[string]string
-}
-
-func (service *Service) CreateDeal(config *CreateDealConfig) (*Deal, *errortools.Error) {
+func (service *Service) CreateDeal(config *CreateObjectConfig) (*Deal, *errortools.Error) {
 	endpoint := "objects/deals"
 	deal := Deal{}
-
-	var properties_ = struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		config.Properties,
-	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPost,
 		Url:           service.urlCrm(endpoint),
-		BodyModel:     properties_,
+		BodyModel:     config,
 		ResponseModel: &deal,
 	}
 
@@ -156,25 +146,14 @@ func (service *Service) CreateDeal(config *CreateDealConfig) (*Deal, *errortools
 	return &deal, nil
 }
 
-type UpdateDealConfig struct {
-	DealId     string
-	Properties map[string]string
-}
-
-func (service *Service) UpdateDeal(config *UpdateDealConfig) (*Deal, *errortools.Error) {
+func (service *Service) UpdateDeal(config *UpdateObjectConfig) (*Deal, *errortools.Error) {
 	endpoint := "objects/deals"
 	deal := Deal{}
 
-	var properties_ = struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		config.Properties,
-	}
-
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.DealId)),
-		BodyModel:     properties_,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ObjectId)),
+		BodyModel:     config,
 		ResponseModel: &deal,
 	}
 

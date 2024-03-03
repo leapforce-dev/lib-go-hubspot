@@ -1,10 +1,12 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -23,6 +25,7 @@ type Contact struct {
 	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
 	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
 	Archived     bool                       `json:"archived"`
+	ArchivedAt   h_types.DateTimeMSString   `json:"archivedAt"`
 	Associations map[string]AssociationsSet `json:"associations"`
 }
 
@@ -107,24 +110,14 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 	return &contacts, nil
 }
 
-type CreateContactConfig struct {
-	Properties map[string]string
-}
-
-func (service *Service) CreateContact(config *CreateContactConfig) (*Contact, *errortools.Error) {
+func (service *Service) CreateContact(config *CreateObjectConfig) (*Contact, *errortools.Error) {
 	endpoint := "objects/contacts"
 	contact := Contact{}
-
-	properties := struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		config.Properties,
-	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPost,
 		Url:           service.urlCrm(endpoint),
-		BodyModel:     properties,
+		BodyModel:     config,
 		ResponseModel: &contact,
 	}
 
@@ -136,25 +129,102 @@ func (service *Service) CreateContact(config *CreateContactConfig) (*Contact, *e
 	return &contact, nil
 }
 
-type UpdateContactConfig struct {
-	ContactId  string
-	Properties map[string]string
+type BatchContactsResponse struct {
+	CompletedAt *time.Time        `json:"completedAt"`
+	NumErrors   int               `json:"numErrors"`
+	RequestedAt *time.Time        `json:"requestedAt"`
+	StartedAt   *time.Time        `json:"startedAt"`
+	Links       map[string]string `json:"links"`
+	Results     []Contact         `json:"results"`
+	Errors      []struct {
+		SubCategory json.RawMessage   `json:"subCategory"`
+		Context     map[string]string `json:"context"`
+		Links       map[string]string `json:"links"`
+		Id          string            `json:"id"`
+		Category    string            `json:"category"`
+		Message     string            `json:"message"`
+		Errors      []struct {
+			SubCategory string `json:"subCategory"`
+			Code        string `json:"code"`
+			In          string `json:"in"`
+			Context     struct {
+				MissingScopes []string `json:"missingScopes"`
+			} `json:"context"`
+			Message string `json:"message"`
+		} `json:"errors"`
+		Status string `json:"status"`
+	} `json:"errors"`
+	Status string `json:"status"`
 }
 
-func (service *Service) UpdateContact(config *UpdateContactConfig) (*Contact, *errortools.Error) {
+func (service *Service) BatchCreateContacts(config *BatchCreateObjectsConfig) (*[]Contact, *errortools.Error) {
+	var contacts []Contact
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchContactsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
+			BodyModel:     BatchCreateObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		contacts = append(contacts, r.Results...)
+	}
+
+	return &contacts, nil
+}
+
+func (service *Service) BatchUpdateContacts(config *BatchUpdateObjectsConfig) (*[]Contact, *errortools.Error) {
+	var contacts []Contact
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchContactsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/update", config.ObjectType)),
+			BodyModel:     BatchUpdateObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		contacts = append(contacts, r.Results...)
+	}
+
+	return &contacts, nil
+}
+
+func (service *Service) UpdateContact(config *UpdateObjectConfig) (*Contact, *errortools.Error) {
 	endpoint := "objects/contacts"
 	contact := Contact{}
 
-	properties := struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		config.Properties,
-	}
-
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ContactId)),
-		BodyModel:     properties,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ObjectId)),
+		BodyModel:     config,
 		ResponseModel: &contact,
 	}
 
@@ -307,17 +377,16 @@ func (service *Service) DeleteContact(contactId string) *errortools.Error {
 	return e
 }
 
-func (service *Service) BatchDeleteContacts(contactIds []string) *errortools.Error {
-	var maxItemsPerBatch = 100
+func (service *Service) BatchArchiveContacts(contactIds []string) *errortools.Error {
 	var index = 0
 	for len(contactIds) > index {
 		if len(contactIds) > index+maxItemsPerBatch {
-			e := service.batchDeleteContacts(contactIds[index : index+maxItemsPerBatch])
+			e := service.batchArchiveContacts(contactIds[index : index+maxItemsPerBatch])
 			if e != nil {
 				return e
 			}
 		} else {
-			e := service.batchDeleteContacts(contactIds[index:])
+			e := service.batchArchiveContacts(contactIds[index:])
 			if e != nil {
 				return e
 			}
@@ -329,7 +398,7 @@ func (service *Service) BatchDeleteContacts(contactIds []string) *errortools.Err
 	return nil
 }
 
-func (service *Service) batchDeleteContacts(contactIds []string) *errortools.Error {
+func (service *Service) batchArchiveContacts(contactIds []string) *errortools.Error {
 	var body struct {
 		Inputs []struct {
 			Id string `json:"id"`

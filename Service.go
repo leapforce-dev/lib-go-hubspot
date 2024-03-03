@@ -22,7 +22,8 @@ const (
 	defaultRedirectUrl string = "http://localhost:8080/oauth/redirect"
 	authUrl            string = "https://app-eu1.hubspot.com/oauth/authorize"
 	//tokenUrl           string = "https://api.pinterest.com/v5/oauth/token"
-	tokenHttpMethod string = http.MethodPost
+	tokenHttpMethod  string = http.MethodPost
+	maxItemsPerBatch int    = 100
 )
 
 type authorizationMode string
@@ -246,4 +247,35 @@ func (service *Service) ApiReset() {
 
 func (service *Service) ErrorResponse() *ErrorResponse {
 	return service.errorResponse
+}
+
+type batch struct {
+	startIndex int
+	endIndex   int
+}
+
+func (service *Service) batches(totalLength int) []batch {
+	var b []batch
+
+	if totalLength > 0 {
+		startIndex := 0
+		for {
+			endIndex := startIndex + maxItemsPerBatch
+			if totalLength < endIndex {
+				endIndex = totalLength
+			}
+
+			b = append(b, batch{
+				startIndex: startIndex,
+				endIndex:   endIndex,
+			})
+
+			startIndex += maxItemsPerBatch
+			if startIndex >= totalLength {
+				break
+			}
+		}
+	}
+
+	return b
 }

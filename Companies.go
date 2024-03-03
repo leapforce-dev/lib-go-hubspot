@@ -107,24 +107,14 @@ func (service *Service) GetCompanies(config *GetCompaniesConfig) (*[]Company, *e
 	return &companies, nil
 }
 
-type CreateCompanyConfig struct {
-	Properties map[string]string
-}
-
-func (service *Service) CreateCompany(config *CreateCompanyConfig) (*Company, *errortools.Error) {
+func (service *Service) CreateCompany(config *CreateObjectConfig) (*Company, *errortools.Error) {
 	endpoint := "objects/companies"
 	company := Company{}
-
-	properties := struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		config.Properties,
-	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPost,
 		Url:           service.urlCrm(endpoint),
-		BodyModel:     properties,
+		BodyModel:     config,
 		ResponseModel: &company,
 	}
 
@@ -136,25 +126,14 @@ func (service *Service) CreateCompany(config *CreateCompanyConfig) (*Company, *e
 	return &company, nil
 }
 
-type UpdateCompanyConfig struct {
-	CompanyId  string
-	Properties map[string]string
-}
-
-func (service *Service) UpdateCompany(config *UpdateCompanyConfig) (*Company, *errortools.Error) {
+func (service *Service) UpdateCompany(config *UpdateObjectConfig) (*Company, *errortools.Error) {
 	endpoint := "objects/companies"
 	company := Company{}
 
-	properties := struct {
-		Properties map[string]string `json:"properties"`
-	}{
-		config.Properties,
-	}
-
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.CompanyId)),
-		BodyModel:     properties,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ObjectId)),
+		BodyModel:     config,
 		ResponseModel: &company,
 	}
 

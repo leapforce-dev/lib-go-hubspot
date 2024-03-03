@@ -129,8 +129,8 @@ func (service *Service) ListEngagements(config *ListEngagementsConfig) (*[]Engag
 
 type CreateEngagementConfig struct {
 	Type         EngagementType
-	Properties   map[string]string `json:"properties"`
-	Associations *[]AssociationTo  `json:"associations,omitempty"`
+	Properties   map[string]string  `json:"properties"`
+	Associations *[]AssociationToV4 `json:"associations,omitempty"`
 }
 
 func (service *Service) CreateEngagement(config *CreateEngagementConfig) (*Engagement, *errortools.Error) {
