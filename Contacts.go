@@ -130,6 +130,7 @@ func (service *Service) CreateContact(config *CreateObjectConfig) (*Contact, *er
 
 func (service *Service) BatchCreateContacts(config *BatchObjectsConfig, invalidEmailProperty string) (*[]Contact, *errortools.Error) {
 	var contacts []Contact
+	var retrying = false
 
 	for _, batch := range service.batches(len(config.Inputs)) {
 	retry:
@@ -148,7 +149,8 @@ func (service *Service) BatchCreateContacts(config *BatchObjectsConfig, invalidE
 				fmt.Println(r.Errors)
 				goto ok
 			}
-			if response.StatusCode == http.StatusBadRequest {
+
+			if response.StatusCode == http.StatusBadRequest && !retrying {
 				errorResponse := service.ErrorResponse()
 				if errorResponse != nil {
 					if strings.HasPrefix(errorResponse.Message, "Property values were not valid: ") {
@@ -158,6 +160,7 @@ func (service *Service) BatchCreateContacts(config *BatchObjectsConfig, invalidE
 							goto stop
 						}
 
+						retrying = true
 						goto retry
 					}
 				}
@@ -192,12 +195,12 @@ func checkInvalidEmails(config *BatchObjectsConfig, invalidEmailProperty string,
 		fmt.Println(propertyError.Message)
 
 		if propertyError.Error == "INVALID_EMAIL" {
-			email := strings.TrimSuffix(strings.TrimPrefix(propertyError.Message, "Email address "), " is invalid")
+			email := strings.TrimSuffix(strings.TrimPrefix(propertyError.Message, "E-mail address "), " is invalid")
 			for i := batch.startIndex; i < batch.endIndex; i++ {
-				if config.Inputs[i].Properties["email"] == email {
-					config.Inputs[i].Properties["email"] = ""
+				if (*config).Inputs[i].Properties["email"] == email {
+					(*config).Inputs[i].Properties["email"] = ""
 					if invalidEmailProperty != "" {
-						config.Inputs[i].Properties[invalidEmailProperty] = email
+						(*config).Inputs[i].Properties[invalidEmailProperty] = email
 					}
 				}
 			}
