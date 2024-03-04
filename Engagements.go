@@ -1,10 +1,12 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -191,17 +193,17 @@ func (service *Service) UpdateEngagement(config *UpdateEngagementConfig) (*Engag
 	return &engagement, nil
 }
 
-func (service *Service) BatchDeleteEngagements(engagementType EngagementType, engagementIds []string) *errortools.Error {
+func (service *Service) BatchArchiveEngagements(engagementType EngagementType, engagementIds []string) *errortools.Error {
 	var maxItemsPerBatch = 100
 	var index = 0
 	for len(engagementIds) > index {
 		if len(engagementIds) > index+maxItemsPerBatch {
-			e := service.batchDeleteEngagements(engagementType, engagementIds[index:index+maxItemsPerBatch])
+			e := service.batchArchiveEngagements(engagementType, engagementIds[index:index+maxItemsPerBatch])
 			if e != nil {
 				return e
 			}
 		} else {
-			e := service.batchDeleteEngagements(engagementType, engagementIds[index:])
+			e := service.batchArchiveEngagements(engagementType, engagementIds[index:])
 			if e != nil {
 				return e
 			}
@@ -213,7 +215,7 @@ func (service *Service) BatchDeleteEngagements(engagementType EngagementType, en
 	return nil
 }
 
-func (service *Service) batchDeleteEngagements(engagementType EngagementType, engagementIds []string) *errortools.Error {
+func (service *Service) batchArchiveEngagements(engagementType EngagementType, engagementIds []string) *errortools.Error {
 	var body struct {
 		Inputs []struct {
 			Id string `json:"id"`
@@ -292,6 +294,98 @@ func (service *Service) SearchEngagements(objectType ObjectType, config *SearchO
 		}
 
 		config.After = &engagementsResponse.Paging.Next.After
+	}
+
+	return &engagements, nil
+}
+
+type BatchEngagementsResponse struct {
+	CompletedAt *time.Time        `json:"completedAt"`
+	NumErrors   int               `json:"numErrors"`
+	RequestedAt *time.Time        `json:"requestedAt"`
+	StartedAt   *time.Time        `json:"startedAt"`
+	Links       map[string]string `json:"links"`
+	Results     []Engagement      `json:"results"`
+	Errors      []struct {
+		SubCategory json.RawMessage   `json:"subCategory"`
+		Context     map[string]string `json:"context"`
+		Links       map[string]string `json:"links"`
+		Id          string            `json:"id"`
+		Category    string            `json:"category"`
+		Message     string            `json:"message"`
+		Errors      []struct {
+			SubCategory string `json:"subCategory"`
+			Code        string `json:"code"`
+			In          string `json:"in"`
+			Context     struct {
+				MissingScopes []string `json:"missingScopes"`
+			} `json:"context"`
+			Message string `json:"message"`
+		} `json:"errors"`
+		Status string `json:"status"`
+	} `json:"errors"`
+	Status string `json:"status"`
+}
+
+func (service *Service) BatchCreateEngagements(config *BatchObjectsConfig) (*[]Engagement, *errortools.Error) {
+	var engagements []Engagement
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchEngagementsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		engagements = append(engagements, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &engagements, nil
+}
+
+func (service *Service) BatchUpdateEngagements(config *BatchObjectsConfig) (*[]Engagement, *errortools.Error) {
+	var engagements []Engagement
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchEngagementsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/update", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		engagements = append(engagements, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
 	}
 
 	return &engagements, nil

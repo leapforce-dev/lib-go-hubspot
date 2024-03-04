@@ -2,13 +2,12 @@ package hubspot
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
 	h_types "github.com/leapforce-libraries/go_hubspot/types"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 type CompaniesResponse struct {
@@ -296,7 +295,7 @@ func (service *Service) SearchCompanies(config *SearchObjectsConfig) (*[]Company
 	return &companies, nil
 }
 
-func (service *Service) DeleteCompany(companyId string) *errortools.Error {
+func (service *Service) ArchiveCompany(companyId string) *errortools.Error {
 	requestConfig := go_http.RequestConfig{
 		Method: http.MethodDelete,
 		Url:    service.urlCrm(fmt.Sprintf("objects/companies/%s", companyId)),
@@ -306,17 +305,17 @@ func (service *Service) DeleteCompany(companyId string) *errortools.Error {
 	return e
 }
 
-func (service *Service) BatchDeleteCompanies(companyIds []string) *errortools.Error {
+func (service *Service) BatchArchiveCompanies(companyIds []string) *errortools.Error {
 	var maxItemsPerBatch = 100
 	var index = 0
 	for len(companyIds) > index {
 		if len(companyIds) > index+maxItemsPerBatch {
-			e := service.batchDeleteCompanies(companyIds[index : index+maxItemsPerBatch])
+			e := service.batchArchiveCompanies(companyIds[index : index+maxItemsPerBatch])
 			if e != nil {
 				return e
 			}
 		} else {
-			e := service.batchDeleteCompanies(companyIds[index:])
+			e := service.batchArchiveCompanies(companyIds[index:])
 			if e != nil {
 				return e
 			}
@@ -328,7 +327,7 @@ func (service *Service) BatchDeleteCompanies(companyIds []string) *errortools.Er
 	return nil
 }
 
-func (service *Service) batchDeleteCompanies(companyIds []string) *errortools.Error {
+func (service *Service) batchArchiveCompanies(companyIds []string) *errortools.Error {
 	var body struct {
 		Inputs []struct {
 			Id string `json:"id"`

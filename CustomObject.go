@@ -1,10 +1,12 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -156,17 +158,17 @@ func (service *Service) UpdateCustomObject(config *UpdateObjectConfig) (*CustomO
 	return &customObject, nil
 }
 
-func (service *Service) BatchDeleteCustomObjects(objectType string, customObjectIds []string) *errortools.Error {
+func (service *Service) BatchArchiveCustomObjects(objectType string, customObjectIds []string) *errortools.Error {
 	var maxItemsPerBatch = 100
 	var index = 0
 	for len(customObjectIds) > index {
 		if len(customObjectIds) > index+maxItemsPerBatch {
-			e := service.batchDeleteCustomObjects(objectType, customObjectIds[index:index+maxItemsPerBatch])
+			e := service.batchArchiveCustomObjects(objectType, customObjectIds[index:index+maxItemsPerBatch])
 			if e != nil {
 				return e
 			}
 		} else {
-			e := service.batchDeleteCustomObjects(objectType, customObjectIds[index:])
+			e := service.batchArchiveCustomObjects(objectType, customObjectIds[index:])
 			if e != nil {
 				return e
 			}
@@ -178,7 +180,7 @@ func (service *Service) BatchDeleteCustomObjects(objectType string, customObject
 	return nil
 }
 
-func (service *Service) batchDeleteCustomObjects(objectType string, customObjectIds []string) *errortools.Error {
+func (service *Service) batchArchiveCustomObjects(objectType string, customObjectIds []string) *errortools.Error {
 	var body struct {
 		Inputs []struct {
 			Id string `json:"id"`
@@ -199,4 +201,96 @@ func (service *Service) batchDeleteCustomObjects(objectType string, customObject
 
 	_, _, e := service.httpRequest(&requestConfig)
 	return e
+}
+
+type BatchCustomObjectsResponse struct {
+	CompletedAt *time.Time        `json:"completedAt"`
+	NumErrors   int               `json:"numErrors"`
+	RequestedAt *time.Time        `json:"requestedAt"`
+	StartedAt   *time.Time        `json:"startedAt"`
+	Links       map[string]string `json:"links"`
+	Results     []CustomObject    `json:"results"`
+	Errors      []struct {
+		SubCategory json.RawMessage   `json:"subCategory"`
+		Context     map[string]string `json:"context"`
+		Links       map[string]string `json:"links"`
+		Id          string            `json:"id"`
+		Category    string            `json:"category"`
+		Message     string            `json:"message"`
+		Errors      []struct {
+			SubCategory string `json:"subCategory"`
+			Code        string `json:"code"`
+			In          string `json:"in"`
+			Context     struct {
+				MissingScopes []string `json:"missingScopes"`
+			} `json:"context"`
+			Message string `json:"message"`
+		} `json:"errors"`
+		Status string `json:"status"`
+	} `json:"errors"`
+	Status string `json:"status"`
+}
+
+func (service *Service) BatchCreateCustomObjects(config *BatchObjectsConfig) (*[]CustomObject, *errortools.Error) {
+	var customObjects []CustomObject
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchCustomObjectsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		customObjects = append(customObjects, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &customObjects, nil
+}
+
+func (service *Service) BatchUpdateCustomObjects(config *BatchObjectsConfig) (*[]CustomObject, *errortools.Error) {
+	var customObjects []CustomObject
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchCustomObjectsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/update", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		customObjects = append(customObjects, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &customObjects, nil
 }

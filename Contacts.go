@@ -3,14 +3,13 @@ package hubspot
 import (
 	"encoding/json"
 	"fmt"
+	errortools "github.com/leapforce-libraries/go_errortools"
+	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
-	errortools "github.com/leapforce-libraries/go_errortools"
-	go_http "github.com/leapforce-libraries/go_http"
-	h_types "github.com/leapforce-libraries/go_hubspot/types"
 )
 
 type ContactsResponse struct {
@@ -129,6 +128,86 @@ func (service *Service) CreateContact(config *CreateObjectConfig) (*Contact, *er
 	return &contact, nil
 }
 
+func (service *Service) BatchCreateContacts(config *BatchObjectsConfig, invalidEmailProperty string) (*[]Contact, *errortools.Error) {
+	var contacts []Contact
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+	retry:
+		var r BatchContactsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+			if response.StatusCode == http.StatusBadRequest {
+				errorResponse := service.ErrorResponse()
+				if errorResponse != nil {
+					if strings.HasPrefix(errorResponse.Message, "Property values were not valid: ") {
+						stop := checkInvalidEmails(config, invalidEmailProperty, errorResponse.Message, batch)
+
+						if stop {
+							goto stop
+						}
+
+						goto retry
+					}
+				}
+			}
+		}
+
+	stop:
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		contacts = append(contacts, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &contacts, nil
+}
+
+func checkInvalidEmails(config *BatchObjectsConfig, invalidEmailProperty string, message string, batch batch) (stop bool) {
+	m := strings.TrimPrefix(message, "Property values were not valid: ")
+
+	var propertyErrors []PropertyError
+	err := json.Unmarshal([]byte(m), &propertyErrors)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+
+	hasNonEmailError := false
+	for _, propertyError := range propertyErrors {
+		fmt.Println(propertyError.Message)
+
+		if propertyError.Error == "INVALID_EMAIL" {
+			email := strings.TrimSuffix(strings.TrimPrefix(propertyError.Message, "Email address "), " is invalid")
+			for i := batch.startIndex; i < batch.endIndex; i++ {
+				if config.Inputs[i].Properties["email"] == email {
+					config.Inputs[i].Properties["email"] = ""
+					if invalidEmailProperty != "" {
+						config.Inputs[i].Properties[invalidEmailProperty] = email
+					}
+				}
+			}
+		} else {
+			hasNonEmailError = true
+		}
+	}
+	return hasNonEmailError
+}
+
 type BatchContactsResponse struct {
 	CompletedAt *time.Time        `json:"completedAt"`
 	NumErrors   int               `json:"numErrors"`
@@ -157,46 +236,17 @@ type BatchContactsResponse struct {
 	Status string `json:"status"`
 }
 
-func (service *Service) BatchCreateContacts(config *BatchCreateObjectsConfig) (*[]Contact, *errortools.Error) {
+func (service *Service) BatchUpdateContacts(config *BatchObjectsConfig, invalidEmailProperty string) (*[]Contact, *errortools.Error) {
 	var contacts []Contact
 
 	for _, batch := range service.batches(len(config.Inputs)) {
-		var r BatchContactsResponse
-
-		requestConfig := go_http.RequestConfig{
-			Method:        http.MethodPost,
-			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
-			BodyModel:     BatchCreateObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
-			ResponseModel: &r,
-		}
-
-		_, response, e := service.httpRequest(&requestConfig)
-		if response != nil {
-			if response.StatusCode == http.StatusMultiStatus {
-				fmt.Println(r.Errors)
-				goto ok
-			}
-		}
-		if e != nil {
-			return nil, e
-		}
-	ok:
-		contacts = append(contacts, r.Results...)
-	}
-
-	return &contacts, nil
-}
-
-func (service *Service) BatchUpdateContacts(config *BatchUpdateObjectsConfig) (*[]Contact, *errortools.Error) {
-	var contacts []Contact
-
-	for _, batch := range service.batches(len(config.Inputs)) {
+	retry:
 		var r BatchContactsResponse
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodPost,
 			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/update", config.ObjectType)),
-			BodyModel:     BatchUpdateObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
 			ResponseModel: &r,
 		}
 
@@ -206,12 +256,29 @@ func (service *Service) BatchUpdateContacts(config *BatchUpdateObjectsConfig) (*
 				fmt.Println(r.Errors)
 				goto ok
 			}
+			if response.StatusCode == http.StatusBadRequest {
+				errorResponse := service.ErrorResponse()
+				if errorResponse != nil {
+					if strings.HasPrefix(errorResponse.Message, "Property values were not valid: ") {
+						stop := checkInvalidEmails(config, invalidEmailProperty, errorResponse.Message, batch)
+
+						if stop {
+							goto stop
+						}
+
+						goto retry
+					}
+				}
+			}
 		}
+	stop:
 		if e != nil {
 			return nil, e
 		}
 	ok:
 		contacts = append(contacts, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
 	}
 
 	return &contacts, nil

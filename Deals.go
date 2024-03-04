@@ -1,15 +1,15 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
+	errortools "github.com/leapforce-libraries/go_errortools"
+	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
-	errortools "github.com/leapforce-libraries/go_errortools"
-	go_http "github.com/leapforce-libraries/go_http"
-	h_types "github.com/leapforce-libraries/go_hubspot/types"
 )
 
 type DealsResponse struct {
@@ -146,6 +146,98 @@ func (service *Service) CreateDeal(config *CreateObjectConfig) (*Deal, *errortoo
 	return &deal, nil
 }
 
+type BatchDealsResponse struct {
+	CompletedAt *time.Time        `json:"completedAt"`
+	NumErrors   int               `json:"numErrors"`
+	RequestedAt *time.Time        `json:"requestedAt"`
+	StartedAt   *time.Time        `json:"startedAt"`
+	Links       map[string]string `json:"links"`
+	Results     []Deal            `json:"results"`
+	Errors      []struct {
+		SubCategory json.RawMessage   `json:"subCategory"`
+		Context     map[string]string `json:"context"`
+		Links       map[string]string `json:"links"`
+		Id          string            `json:"id"`
+		Category    string            `json:"category"`
+		Message     string            `json:"message"`
+		Errors      []struct {
+			SubCategory string `json:"subCategory"`
+			Code        string `json:"code"`
+			In          string `json:"in"`
+			Context     struct {
+				MissingScopes []string `json:"missingScopes"`
+			} `json:"context"`
+			Message string `json:"message"`
+		} `json:"errors"`
+		Status string `json:"status"`
+	} `json:"errors"`
+	Status string `json:"status"`
+}
+
+func (service *Service) BatchCreateDeals(config *BatchObjectsConfig) (*[]Deal, *errortools.Error) {
+	var deals []Deal
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchDealsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		deals = append(deals, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &deals, nil
+}
+
+func (service *Service) BatchUpdateDeals(config *BatchObjectsConfig) (*[]Deal, *errortools.Error) {
+	var deals []Deal
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+		var r BatchDealsResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/update", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+		}
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		deals = append(deals, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &deals, nil
+}
+
 func (service *Service) UpdateDeal(config *UpdateObjectConfig) (*Deal, *errortools.Error) {
 	endpoint := "objects/deals"
 	deal := Deal{}
@@ -165,17 +257,17 @@ func (service *Service) UpdateDeal(config *UpdateObjectConfig) (*Deal, *errortoo
 	return &deal, nil
 }
 
-func (service *Service) BatchDeleteDeals(dealIds []string) *errortools.Error {
+func (service *Service) BatchArchiveDeals(dealIds []string) *errortools.Error {
 	var maxItemsPerBatch = 100
 	var index = 0
 	for len(dealIds) > index {
 		if len(dealIds) > index+maxItemsPerBatch {
-			e := service.batchDeleteDeals(dealIds[index : index+maxItemsPerBatch])
+			e := service.batchArchiveDeals(dealIds[index : index+maxItemsPerBatch])
 			if e != nil {
 				return e
 			}
 		} else {
-			e := service.batchDeleteDeals(dealIds[index:])
+			e := service.batchArchiveDeals(dealIds[index:])
 			if e != nil {
 				return e
 			}
@@ -187,7 +279,7 @@ func (service *Service) BatchDeleteDeals(dealIds []string) *errortools.Error {
 	return nil
 }
 
-func (service *Service) batchDeleteDeals(dealIds []string) *errortools.Error {
+func (service *Service) batchArchiveDeals(dealIds []string) *errortools.Error {
 	var body struct {
 		Inputs []struct {
 			Id string `json:"id"`

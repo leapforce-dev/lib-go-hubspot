@@ -14,6 +14,7 @@ const (
 	ObjectTypeNotes               ObjectType = "notes"
 	ObjectTypeProducts            ObjectType = "products"
 	ObjectTypeQuotes              ObjectType = "quotes"
+	ObjectTypeTasks               ObjectType = "tasks"
 	ObjectTypeTickets             ObjectType = "tickets"
 )
 
@@ -23,24 +24,15 @@ type CreateObjectConfig struct {
 	Associations *[]AssociationToV4 `json:"associations,omitempty"`
 }
 
-type BatchCreateObjectInput struct {
+type BatchObjectInput struct {
+	Id           *string            `json:"id,omitempty"`
 	Properties   map[string]string  `json:"properties"`
 	Associations *[]AssociationToV4 `json:"associations,omitempty"`
 }
 
-type BatchCreateObjectsConfig struct {
-	ObjectType string                   `json:"-"`
-	Inputs     []BatchCreateObjectInput `json:"inputs"`
-}
-
-type BatchUpdateObjectInput struct {
-	Id         string            `json:"id"`
-	Properties map[string]string `json:"properties"`
-}
-
-type BatchUpdateObjectsConfig struct {
-	ObjectType string                   `json:"-"`
-	Inputs     []BatchUpdateObjectInput `json:"inputs"`
+type BatchObjectsConfig struct {
+	ObjectType string             `json:"-"`
+	Inputs     []BatchObjectInput `json:"inputs"`
 }
 
 type UpdateObjectConfig struct {
