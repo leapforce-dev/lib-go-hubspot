@@ -195,7 +195,10 @@ func checkInvalidEmails(config *BatchObjectsConfig, invalidEmailProperty string,
 		fmt.Println(propertyError.Message)
 
 		if propertyError.Error == "INVALID_EMAIL" {
-			email := strings.TrimSuffix(strings.TrimPrefix(propertyError.Message, "E-mail address "), " is invalid")
+			// English error message
+			email := strings.TrimSuffix(strings.TrimPrefix(propertyError.Message, "Email address "), " is invalid")
+			// Dutch error message
+			email = strings.TrimSuffix(strings.TrimPrefix(propertyError.Message, "E-mailadres "), " is ongeldig")
 			for i := batch.startIndex; i < batch.endIndex; i++ {
 				if (*config).Inputs[i].Properties["email"] == email {
 					(*config).Inputs[i].Properties["email"] = ""
