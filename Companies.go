@@ -2,12 +2,13 @@ package hubspot
 
 import (
 	"fmt"
-	errortools "github.com/leapforce-libraries/go_errortools"
-	go_http "github.com/leapforce-libraries/go_http"
-	h_types "github.com/leapforce-libraries/go_hubspot/types"
 	"net/http"
 	"net/url"
 	"strings"
+
+	errortools "github.com/leapforce-libraries/go_errortools"
+	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
 )
 
 type CompaniesResponse struct {
@@ -17,20 +18,22 @@ type CompaniesResponse struct {
 
 // Company stores Company from Service
 type Company struct {
-	Id           string                     `json:"id"`
-	Properties   map[string]string          `json:"properties"`
-	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
-	Archived     bool                       `json:"archived"`
-	Associations map[string]AssociationsSet `json:"associations"`
+	Id                    string                       `json:"id"`
+	Properties            map[string]string            `json:"properties"`
+	CreatedAt             h_types.DateTimeMSString     `json:"createdAt"`
+	UpdatedAt             h_types.DateTimeMSString     `json:"updatedAt"`
+	Archived              bool                         `json:"archived"`
+	Associations          map[string]AssociationsSet   `json:"associations"`
+	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
 
 type GetCompaniesConfig struct {
-	Limit        *uint
-	After        *string
-	Properties   *[]string
-	Associations *[]string
-	Archived     *bool
+	Limit                 *uint
+	After                 *string
+	Properties            *[]string
+	PropertiesWithHistory *[]string
+	Associations          *[]string
+	Archived              *bool
 }
 
 // GetCompanies returns all companies

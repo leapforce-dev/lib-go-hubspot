@@ -19,12 +19,13 @@ type CustomObjectsResponse struct {
 }
 
 type CustomObject struct {
-	Id           string                     `json:"id"`
-	Properties   map[string]string          `json:"properties"`
-	CreatedAt    h_types.DateTimeString     `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeString     `json:"updatedAt"`
-	Archived     bool                       `json:"archived"`
-	Associations map[string]AssociationsSet `json:"associations"`
+	Id                    string                       `json:"id"`
+	Properties            map[string]string            `json:"properties"`
+	CreatedAt             h_types.DateTimeString       `json:"createdAt"`
+	UpdatedAt             h_types.DateTimeString       `json:"updatedAt"`
+	Archived              bool                         `json:"archived"`
+	Associations          map[string]AssociationsSet   `json:"associations"`
+	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
 
 type GetCustomObjectsConfig struct {

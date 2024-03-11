@@ -3,13 +3,14 @@ package hubspot
 import (
 	"encoding/json"
 	"fmt"
-	errortools "github.com/leapforce-libraries/go_errortools"
-	go_http "github.com/leapforce-libraries/go_http"
-	h_types "github.com/leapforce-libraries/go_hubspot/types"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	errortools "github.com/leapforce-libraries/go_errortools"
+	go_http "github.com/leapforce-libraries/go_http"
+	h_types "github.com/leapforce-libraries/go_hubspot/types"
 )
 
 type ContactsResponse struct {
@@ -19,21 +20,23 @@ type ContactsResponse struct {
 
 // Contact stores Contact from Service
 type Contact struct {
-	Id           string                     `json:"id"`
-	Properties   map[string]string          `json:"properties"`
-	CreatedAt    h_types.DateTimeMSString   `json:"createdAt"`
-	UpdatedAt    h_types.DateTimeMSString   `json:"updatedAt"`
-	Archived     bool                       `json:"archived"`
-	ArchivedAt   h_types.DateTimeMSString   `json:"archivedAt"`
-	Associations map[string]AssociationsSet `json:"associations"`
+	Id                    string                       `json:"id"`
+	Properties            map[string]string            `json:"properties"`
+	CreatedAt             h_types.DateTimeMSString     `json:"createdAt"`
+	UpdatedAt             h_types.DateTimeMSString     `json:"updatedAt"`
+	Archived              bool                         `json:"archived"`
+	ArchivedAt            h_types.DateTimeMSString     `json:"archivedAt"`
+	Associations          map[string]AssociationsSet   `json:"associations"`
+	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
 
 type GetContactsConfig struct {
-	Limit        *uint
-	After        *string
-	Properties   *[]string
-	Associations *[]string
-	Archived     *bool
+	Limit                 *uint
+	After                 *string
+	Properties            *[]string
+	PropertiesWithHistory *[]string
+	Associations          *[]string
+	Archived              *bool
 }
 
 // GetContacts returns all contacts
@@ -48,6 +51,11 @@ func (service *Service) GetContacts(config *GetContactsConfig) (*[]Contact, *err
 		if config.Properties != nil {
 			if len(*config.Properties) > 0 {
 				values.Set("properties", strings.Join(*config.Properties, ","))
+			}
+		}
+		if config.PropertiesWithHistory != nil {
+			if len(*config.PropertiesWithHistory) > 0 {
+				values.Set("propertiesWithHistory", strings.Join(*config.PropertiesWithHistory, ","))
 			}
 		}
 		if config.Associations != nil {
