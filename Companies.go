@@ -1,10 +1,12 @@
 package hubspot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
@@ -126,6 +128,134 @@ func (service *Service) CreateCompany(config *CreateObjectConfig) (*Company, *er
 	}
 
 	return &company, nil
+}
+
+func (service *Service) BatchCreateCompanies(config *BatchObjectsConfig, invalidEmailProperty string) (*[]Company, *errortools.Error) {
+	var companies []Company
+	var retrying = false
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+	retry:
+		var r BatchCompaniesResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/create", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+
+			if response.StatusCode == http.StatusBadRequest && !retrying {
+				errorResponse := service.ErrorResponse()
+				if errorResponse != nil {
+					if strings.HasPrefix(errorResponse.Message, "Property values were not valid: ") {
+						stop := checkInvalidEmails(config, invalidEmailProperty, errorResponse.Message, batch)
+
+						if stop {
+							goto stop
+						}
+
+						retrying = true
+						goto retry
+					}
+				}
+			}
+		}
+
+	stop:
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		companies = append(companies, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &companies, nil
+}
+
+type BatchCompaniesResponse struct {
+	CompletedAt *time.Time        `json:"completedAt"`
+	NumErrors   int               `json:"numErrors"`
+	RequestedAt *time.Time        `json:"requestedAt"`
+	StartedAt   *time.Time        `json:"startedAt"`
+	Links       map[string]string `json:"links"`
+	Results     []Company         `json:"results"`
+	Errors      []struct {
+		SubCategory json.RawMessage   `json:"subCategory"`
+		Context     map[string]string `json:"context"`
+		Links       map[string]string `json:"links"`
+		Id          string            `json:"id"`
+		Category    string            `json:"category"`
+		Message     string            `json:"message"`
+		Errors      []struct {
+			SubCategory string `json:"subCategory"`
+			Code        string `json:"code"`
+			In          string `json:"in"`
+			Context     struct {
+				MissingScopes []string `json:"missingScopes"`
+			} `json:"context"`
+			Message string `json:"message"`
+		} `json:"errors"`
+		Status string `json:"status"`
+	} `json:"errors"`
+	Status string `json:"status"`
+}
+
+func (service *Service) BatchUpdateCompanies(config *BatchObjectsConfig, invalidEmailProperty string) (*[]Company, *errortools.Error) {
+	var companies []Company
+
+	for _, batch := range service.batches(len(config.Inputs)) {
+	retry:
+		var r BatchCompaniesResponse
+
+		requestConfig := go_http.RequestConfig{
+			Method:        http.MethodPost,
+			Url:           service.urlCrm(fmt.Sprintf("objects/%s/batch/update", config.ObjectType)),
+			BodyModel:     BatchObjectsConfig{Inputs: config.Inputs[batch.startIndex:batch.endIndex]},
+			ResponseModel: &r,
+		}
+
+		_, response, e := service.httpRequest(&requestConfig)
+		if response != nil {
+			if response.StatusCode == http.StatusMultiStatus {
+				fmt.Println(r.Errors)
+				goto ok
+			}
+			if response.StatusCode == http.StatusBadRequest {
+				errorResponse := service.ErrorResponse()
+				if errorResponse != nil {
+					if strings.HasPrefix(errorResponse.Message, "Property values were not valid: ") {
+						stop := checkInvalidEmails(config, invalidEmailProperty, errorResponse.Message, batch)
+
+						if stop {
+							goto stop
+						}
+
+						goto retry
+					}
+				}
+			}
+		}
+	stop:
+		if e != nil {
+			return nil, e
+		}
+	ok:
+		companies = append(companies, r.Results...)
+
+		fmt.Println("batch", batch.startIndex)
+	}
+
+	return &companies, nil
 }
 
 func (service *Service) UpdateCompany(config *UpdateObjectConfig) (*Company, *errortools.Error) {

@@ -138,9 +138,9 @@ func (service *Service) CreateContact(config *CreateObjectConfig) (*Contact, *er
 
 func (service *Service) BatchCreateContacts(config *BatchObjectsConfig, invalidEmailProperty string) (*[]Contact, *errortools.Error) {
 	var contacts []Contact
-	var retrying = false
 
 	for _, batch := range service.batches(len(config.Inputs)) {
+		var retrying = false
 	retry:
 		var r BatchContactsResponse
 
