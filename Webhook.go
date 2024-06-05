@@ -1,14 +1,14 @@
 package hubspot
 
 type WebhookPayload struct {
-	AppId            int    `json:"appId"`
-	EventId          int    `json:"eventId"`
-	SubscriptionId   int    `json:"subscriptionId"`
-	PortalId         int    `json:"portalId"`
+	AppId            int64  `json:"appId"`
+	EventId          int64  `json:"eventId"`
+	SubscriptionId   int64  `json:"subscriptionId"`
+	PortalId         int64  `json:"portalId"`
 	OccurredAt       int64  `json:"occurredAt"`
 	SubscriptionType string `json:"subscriptionType"`
-	AttemptNumber    int    `json:"attemptNumber"`
-	ObjectId         int    `json:"objectId"`
+	AttemptNumber    int64  `json:"attemptNumber"`
+	ObjectId         int64  `json:"objectId"`
 	ChangeSource     string `json:"changeSource"`
 	PropertyName     string `json:"propertyName"`
 	PropertyValue    string `json:"propertyValue"`
