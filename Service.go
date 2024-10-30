@@ -16,6 +16,7 @@ const (
 	apiUrlContacts     string = "https://api.hubapi.com/contacts"
 	apiUrlEngagements  string = "https://api.hubapi.com/engagements"
 	apiUrlFiles        string = "https://api.hubapi.com/files"
+	apiUrlCms          string = "https://api.hubapi.com/cms"
 	apiUrlCrm          string = "https://api.hubapi.com/crm"
 	apiUrlOAuth        string = "https://api.hubapi.com/oauth"
 	apiUrlAccountInfo  string = "https://api.hubapi.com/account-info"
@@ -215,6 +216,10 @@ func (service *Service) urlFiles(path string) string {
 
 func (service *Service) urlCrm(path string) string {
 	return fmt.Sprintf("%s/v3/%s", apiUrlCrm, path)
+}
+
+func (service *Service) urlCms(path string) string {
+	return fmt.Sprintf("%s/v3/%s", apiUrlCms, path)
 }
 
 func (service *Service) urlOAuth(path string) string {
