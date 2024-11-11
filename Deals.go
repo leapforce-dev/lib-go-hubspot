@@ -28,14 +28,6 @@ type Deal struct {
 	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
 
-type PropertyHistory struct {
-	Value           string    `json:"value"`
-	Timestamp       time.Time `json:"timestamp"`
-	SourceType      string    `json:"sourceType"`
-	SourceId        string    `json:"sourceId"`
-	UpdatedByUserId int       `json:"updatedByUserId"`
-}
-
 type GetDealsConfig struct {
 	Limit                 *uint
 	After                 *string

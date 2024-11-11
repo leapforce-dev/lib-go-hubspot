@@ -5,6 +5,7 @@ import (
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
 	"net/http"
+	"time"
 )
 
 type PropertyType string
@@ -251,4 +252,13 @@ func (service *Service) batchArchiveProperties(object string, propertyNames []st
 
 	_, _, e := service.httpRequest(&requestConfig)
 	return e
+}
+
+type PropertyHistory struct {
+	SourceId        string    `json:"sourceId"`
+	SourceType      string    `json:"sourceType"`
+	SourceLabel     string    `json:"sourceLabel"`
+	UpdatedByUserId int       `json:"updatedByUserId"`
+	Value           string    `json:"value"`
+	Timestamp       time.Time `json:"timestamp"`
 }
