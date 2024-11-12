@@ -1,11 +1,9 @@
 package hubspot
 
 import (
-	"fmt"
 	errortools "github.com/leapforce-libraries/go_errortools"
 	go_http "github.com/leapforce-libraries/go_http"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -37,39 +35,29 @@ type List struct {
 }
 
 type SearchListsConfig struct {
-	Offset          *uint32   `json:"-"`
+	Offset          *uint32   `json:"offset"`
 	Query           *string   `json:"query,omitempty"`
 	ProcessingTypes *[]string `json:"processingTypes,omitempty"`
 }
 
 // SearchLists returns all lists
 func (service *Service) SearchLists(config *SearchListsConfig) (*[]List, *errortools.Error) {
-	values := url.Values{}
 	endpoint := "lists/search"
 
-	var body SearchListsConfig
+	var config_ SearchListsConfig
 	if config != nil {
-		body = *config
-	}
-
-	var offset uint32 = 0
-	if config != nil {
-		if config.Offset != nil {
-			offset = *config.Offset
-		}
+		config_ = *config
 	}
 
 	var lists []List
 
 	for {
-		values.Set("offset", fmt.Sprint(offset))
-
 		listsResponse := SearchListsResponse{}
 
 		requestConfig := go_http.RequestConfig{
 			Method:        http.MethodPost,
-			Url:           service.urlCrm(fmt.Sprintf("%s?%s", endpoint, values.Encode())),
-			BodyModel:     body,
+			Url:           service.urlCrm(endpoint),
+			BodyModel:     config_,
 			ResponseModel: &listsResponse,
 		}
 
@@ -80,22 +68,11 @@ func (service *Service) SearchLists(config *SearchListsConfig) (*[]List, *errort
 
 		lists = append(lists, listsResponse.Lists...)
 
-		if config != nil {
-			if config.Offset != nil { // explicit after parameter requested
-				break
-			}
-		}
-
 		if !listsResponse.HasMore {
 			break
 		}
 
-		// this check should not be necessary, but just to be sure...
-		if int32(len(listsResponse.Lists)) >= listsResponse.Total {
-			break
-		}
-
-		offset = listsResponse.Offset
+		config_.Offset = &listsResponse.Offset
 	}
 
 	return &lists, nil
