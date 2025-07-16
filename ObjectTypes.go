@@ -6,6 +6,7 @@ const (
 	ObjectTypeCalls               ObjectType = "calls"
 	ObjectTypeCompanies           ObjectType = "companies"
 	ObjectTypeContacts            ObjectType = "contacts"
+	ObjectTypeCourses             ObjectType = "0-410"
 	ObjectTypeDeals               ObjectType = "deals"
 	ObjectTypeEmails              ObjectType = "emails"
 	ObjectTypeFeedbackSubmissions ObjectType = "feedback_submissions"
