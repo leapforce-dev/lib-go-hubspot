@@ -12,16 +12,18 @@ import (
 )
 
 const (
-	apiName            string = "Hubspot"
-	apiUrlContacts     string = "https://api.hubapi.com/contacts"
-	apiUrlEngagements  string = "https://api.hubapi.com/engagements"
-	apiUrlFiles        string = "https://api.hubapi.com/files"
-	apiUrlCms          string = "https://api.hubapi.com/cms"
-	apiUrlCrm          string = "https://api.hubapi.com/crm"
-	apiUrlOAuth        string = "https://api.hubapi.com/oauth"
-	apiUrlAccountInfo  string = "https://api.hubapi.com/account-info"
-	defaultRedirectUrl string = "http://localhost:8080/oauth/redirect"
-	authUrl            string = "https://app-eu1.hubspot.com/oauth/authorize"
+	apiName                string = "Hubspot"
+	apiUrlContacts         string = "https://api.hubapi.com/contacts"
+	apiUrlEngagements      string = "https://api.hubapi.com/engagements"
+	apiUrlFiles            string = "https://api.hubapi.com/files"
+	apiUrlForms            string = "https://api.hubapi.com/forms"
+	apiUrlFormIntegrations string = "https://api.hubapi.com/form-integrations"
+	apiUrlCms              string = "https://api.hubapi.com/cms"
+	apiUrlCrm              string = "https://api.hubapi.com/crm"
+	apiUrlOAuth            string = "https://api.hubapi.com/oauth"
+	apiUrlAccountInfo      string = "https://api.hubapi.com/account-info"
+	defaultRedirectUrl     string = "http://localhost:8080/oauth/redirect"
+	authUrl                string = "https://app-eu1.hubspot.com/oauth/authorize"
 	//tokenUrl           string = "https://api.pinterest.com/v5/oauth/token"
 	tokenHttpMethod  string = http.MethodPost
 	maxItemsPerBatch int    = 100
@@ -212,6 +214,14 @@ func (service *Service) urlContacts(path string) string {
 
 func (service *Service) urlFiles(path string) string {
 	return fmt.Sprintf("%s/v3/%s", apiUrlFiles, path)
+}
+
+func (service *Service) urlForms(path string) string {
+	return fmt.Sprintf("%s/v2/%s", apiUrlForms, path)
+}
+
+func (service *Service) urlFormIntegrations(path string) string {
+	return fmt.Sprintf("%s/v1/%s", apiUrlFormIntegrations, path)
 }
 
 func (service *Service) urlCrm(path string) string {
