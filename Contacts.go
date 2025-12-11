@@ -299,12 +299,22 @@ func (service *Service) BatchUpdateContacts(config *BatchObjectsConfig, invalidE
 }
 
 func (service *Service) UpdateContact(config *UpdateObjectConfig) (*Contact, *errortools.Error) {
+	values := url.Values{}
 	endpoint := "objects/contacts"
+
+	if config == nil {
+		return nil, errortools.ErrorMessage("config is nil")
+	}
+
 	contact := Contact{}
+
+	if config.IdProperty != nil {
+		values.Set("idProperty", *config.IdProperty)
+	}
 
 	requestConfig := go_http.RequestConfig{
 		Method:        http.MethodPatch,
-		Url:           service.urlCrm(fmt.Sprintf("%s/%s", endpoint, config.ObjectId)),
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s?%s", endpoint, config.ObjectId, values.Encode())),
 		BodyModel:     config,
 		ResponseModel: &contact,
 	}
@@ -319,6 +329,7 @@ func (service *Service) UpdateContact(config *UpdateObjectConfig) (*Contact, *er
 
 type GetContactConfig struct {
 	ContactId    string
+	IdProperty   *string
 	Properties   *[]string
 	Associations *[]string
 }
@@ -330,6 +341,10 @@ func (service *Service) GetContact(config *GetContactConfig) (*Contact, *errorto
 
 	if config == nil {
 		return nil, errortools.ErrorMessage("config is nil")
+	}
+
+	if config.IdProperty != nil {
+		values.Set("idProperty", *config.IdProperty)
 	}
 
 	_properties := []string{}
@@ -359,7 +374,12 @@ func (service *Service) GetContact(config *GetContactConfig) (*Contact, *errorto
 		ResponseModel: &contact,
 	}
 
-	_, _, e := service.httpRequest(&requestConfig)
+	_, response, e := service.httpRequest(&requestConfig)
+	if response != nil {
+		if response.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
+	}
 	if e != nil {
 		return nil, e
 	}

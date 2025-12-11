@@ -39,5 +39,6 @@ type BatchObjectsConfig struct {
 type UpdateObjectConfig struct {
 	ObjectType string            `json:"-"`
 	ObjectId   string            `json:"-"`
+	IdProperty *string           `json:"-"`
 	Properties map[string]string `json:"properties"`
 }
