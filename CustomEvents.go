@@ -19,7 +19,7 @@ func (service *Service) SendEventData(config *SendEventDataConfig) *errortools.E
 
 	requestConfig := go_http.RequestConfig{
 		Method:    http.MethodPost,
-		Url:       service.urlCrm(endpoint),
+		Url:       service.urlEvents(endpoint),
 		BodyModel: config,
 	}
 

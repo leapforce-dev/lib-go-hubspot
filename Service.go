@@ -15,6 +15,7 @@ const (
 	apiName                string = "Hubspot"
 	apiUrlContacts         string = "https://api.hubapi.com/contacts"
 	apiUrlEngagements      string = "https://api.hubapi.com/engagements"
+	apiUrlEvents           string = "https://api.hubapi.com/events"
 	apiUrlFiles            string = "https://api.hubapi.com/files"
 	apiUrlForms            string = "https://api.hubapi.com/forms"
 	apiUrlFormIntegrations string = "https://api.hubapi.com/form-integrations"
@@ -210,6 +211,10 @@ func (service *Service) GetTokenFromCode(r *http.Request) *errortools.Error {
 
 func (service *Service) urlContacts(path string) string {
 	return fmt.Sprintf("%s/v1/%s", apiUrlContacts, path)
+}
+
+func (service *Service) urlEvents(path string) string {
+	return fmt.Sprintf("%s/v3/%s", apiUrlEvents, path)
 }
 
 func (service *Service) urlFiles(path string) string {
