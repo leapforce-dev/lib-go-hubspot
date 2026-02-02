@@ -27,6 +27,66 @@ type CustomObject struct {
 	Associations          map[string]AssociationsSet   `json:"associations"`
 	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory"`
 }
+type GetCustomObjectConfig struct {
+	ObjectType   string
+	ObjectId     string
+	IdProperty   *string
+	Properties   *[]string
+	Associations *[]string
+}
+
+// GetCustomObject returns a specific custom object
+func (service *Service) GetCustomObject(config *GetCustomObjectConfig) (*CustomObject, *errortools.Error) {
+	values := url.Values{}
+	endpoint := fmt.Sprintf("objects/%s", config.ObjectType)
+
+	if config == nil {
+		return nil, errortools.ErrorMessage("config is nil")
+	}
+
+	if config.IdProperty != nil {
+		values.Set("idProperty", *config.IdProperty)
+	}
+
+	_properties := []string{}
+	if config.Properties != nil {
+		if len(*config.Properties) > 0 {
+			_properties = append(_properties, *config.Properties...)
+		}
+	}
+	if len(_properties) > 0 {
+		values.Set("properties", strings.Join(_properties, ","))
+	}
+	if config.Associations != nil {
+		if len(*config.Associations) > 0 {
+			_associations := []string{}
+			for _, a := range *config.Associations {
+				_associations = append(_associations, string(a))
+			}
+			values.Set("associations", strings.Join(_associations, ","))
+		}
+	}
+
+	customObject := CustomObject{}
+
+	requestConfig := go_http.RequestConfig{
+		Method:        http.MethodGet,
+		Url:           service.urlCrm(fmt.Sprintf("%s/%s?%s", endpoint, config.ObjectId, values.Encode())),
+		ResponseModel: &customObject,
+	}
+
+	_, response, e := service.httpRequest(&requestConfig)
+	if response != nil {
+		if response.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
+	}
+	if e != nil {
+		return nil, e
+	}
+
+	return &customObject, nil
+}
 
 type GetCustomObjectsConfig struct {
 	ObjectType            string
