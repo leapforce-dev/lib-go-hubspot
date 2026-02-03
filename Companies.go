@@ -362,9 +362,9 @@ func (fg *FilterGroup) AddCustomPropertyFilter(operator string, propertyName str
 type filter struct {
 	Operator     string `json:"operator"`
 	PropertyName string `json:"propertyName,omitempty"`
-	Value        string `json:"value"`
+	Value        string `json:"value,omitempty"`
 	HighValue    string `json:"highValue,omitempty"`
-	isCustom     bool   `json:"-"`
+	isCustom     bool
 }
 
 // SearchCompanies returns a specific company
