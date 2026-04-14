@@ -51,40 +51,42 @@ type ListEngagementsConfig struct {
 
 // ListEngagements returns all engagements
 func (service *Service) ListEngagements(config *ListEngagementsConfig) (*[]Engagement, *errortools.Error) {
+	if config == nil {
+		return nil, errortools.ErrorMessage("Config must nog be nil")
+	}
+
 	values := url.Values{}
 	endpoint := fmt.Sprintf("objects/%v", config.Type)
 
 	after := ""
 
-	if config != nil {
-		if config.Limit != nil {
-			values.Set("limit", fmt.Sprintf("%v", *config.Limit))
+	if config.Limit != nil {
+		values.Set("limit", fmt.Sprintf("%v", *config.Limit))
+	}
+	var _properties []string
+	if config.Properties != nil {
+		if len(*config.Properties) > 0 {
+			_properties = append(_properties, *config.Properties...)
 		}
-		var _properties []string
-		if config.Properties != nil {
-			if len(*config.Properties) > 0 {
-				_properties = append(_properties, *config.Properties...)
+	}
+	if len(_properties) > 0 {
+		values.Set("properties", strings.Join(_properties, ","))
+	}
+	if config.Associations != nil {
+		if len(*config.Associations) > 0 {
+			var _associations []string
+			for _, a := range *config.Associations {
+				_associations = append(_associations, a)
 			}
+			values.Set("associations", strings.Join(_associations, ","))
 		}
-		if len(_properties) > 0 {
-			values.Set("properties", strings.Join(_properties, ","))
-		}
-		if config.Associations != nil {
-			if len(*config.Associations) > 0 {
-				var _associations []string
-				for _, a := range *config.Associations {
-					_associations = append(_associations, a)
-				}
-				values.Set("associations", strings.Join(_associations, ","))
-			}
-		}
-		if config.Archived != nil {
-			values.Set("archived", fmt.Sprintf("%v", *config.Archived))
-		}
+	}
+	if config.Archived != nil {
+		values.Set("archived", fmt.Sprintf("%v", *config.Archived))
+	}
 
-		if config.After != nil {
-			after = *config.After
-		}
+	if config.After != nil {
+		after = *config.After
 	}
 
 	var engagements []Engagement
@@ -109,10 +111,8 @@ func (service *Service) ListEngagements(config *ListEngagementsConfig) (*[]Engag
 
 		engagements = append(engagements, engagementsResponse.Results...)
 
-		if config != nil {
-			if config.After != nil { // explicit after parameter requested
-				break
-			}
+		if config.After != nil { // explicit after parameter requested
+			break
 		}
 
 		if engagementsResponse.Paging == nil {

@@ -63,20 +63,26 @@ type GetRecentEngagementsConfig struct {
 
 func (service *Service) GetRecentEngagements(config *GetRecentEngagementsConfig) (*[]EngagementOld, *errortools.Error) {
 	values := url.Values{}
+	count := uint(100)
 	if config != nil {
 		if config.Count != nil {
-			values.Set("count", fmt.Sprintf("%v", *config.Count))
+			count = uint(*config.Count)
 		}
 		if config.Since != nil {
 			values.Set("since", fmt.Sprintf("%v", config.Since.UnixMilli()))
 		}
 	}
+	values.Set("count", fmt.Sprintf("%v", count))
 
 	var engagements []EngagementOld
 
-	var offset int64 = 0
+	var offset uint = 0
 
 	for {
+		if offset+count > 10000 {
+			// Recently modified engagements result set is limited to 10000 items, please adjust your count & offset parameters so that their sum doesn't exceed 10000.
+			break
+		}
 		if offset > 0 {
 			values.Set("offset", fmt.Sprintf("%v", offset))
 		}
@@ -100,7 +106,7 @@ func (service *Service) GetRecentEngagements(config *GetRecentEngagementsConfig)
 			break
 		}
 
-		offset = engagementsResponse.Offset
+		offset = uint(engagementsResponse.Offset)
 	}
 
 	return &engagements, nil
